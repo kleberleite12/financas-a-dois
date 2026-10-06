@@ -3,6 +3,7 @@ package io.github.kleberleite12.financas.controller;
 import io.github.kleberleite12.financas.model.Lancamento;
 import io.github.kleberleite12.financas.model.TipoLancamento;
 import io.github.kleberleite12.financas.repository.LancamentoRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,10 @@ public class HomeController {
     public String home(
             @RequestParam(required = false) Integer ano,
             @RequestParam(required = false) Integer mes,
+            Authentication authentication,
             Model model) {
+
+        String nomeUsuario = formatarNomeUsuario(authentication.getName());
 
         YearMonth periodo;
 
@@ -109,8 +113,6 @@ public class HomeController {
                 .subtract(guardadoTotal);
 
 
-        // META FINANCEIRA
-
         BigDecimal metaFinanceira =
                 new BigDecimal("20000.00");
 
@@ -155,6 +157,8 @@ public class HomeController {
                 nomeMes.substring(0, 1).toUpperCase()
                         + nomeMes.substring(1);
 
+
+        model.addAttribute("nomeUsuario", nomeUsuario);
 
         model.addAttribute("nomeMes", nomeMes);
         model.addAttribute("ano", periodo.getYear());
@@ -298,5 +302,15 @@ public class HomeController {
                 );
 
         return formato.format(valor);
+    }
+
+    private String formatarNomeUsuario(String usuario) {
+
+        if (usuario == null || usuario.isBlank()) {
+            return "Usuário";
+        }
+
+        return usuario.substring(0, 1).toUpperCase()
+                + usuario.substring(1).toLowerCase();
     }
 }
