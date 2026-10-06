@@ -125,6 +125,58 @@
 
             <div class="titulo-secao">
 
+                <h2>Meta financeira</h2>
+
+                <p>
+                    Progresso acumulado do casal.
+                </p>
+
+            </div>
+
+            <div class="card pessoa">
+
+                <div>
+
+                    <span>
+                        Guardado até agora
+                    </span>
+
+                    <strong th:text="${guardadoAcumulado}">
+                        R$ 0,00
+                    </strong>
+
+                    <p>
+                        Meta:
+                        <span th:text="${metaFinanceira}">
+                            R$ 20.000,00
+                        </span>
+                    </p>
+
+                    <br>
+
+                    <progress
+                            th:value="${percentualBarra}"
+                            max="100">
+                    </progress>
+
+                    <p>
+                        <strong th:text="${percentualMeta} + '%'">
+                            0%
+                        </strong>
+                        concluído
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="secao">
+
+            <div class="titulo-secao">
+
                 <h2>Rendas</h2>
 
                 <p>

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -42,19 +43,23 @@ public class HomeController {
         LocalDate inicioMes = periodo.atDay(1);
         LocalDate fimMes = periodo.atEndOfMonth();
 
-        List<Lancamento> lancamentos =
+        List<Lancamento> lancamentosMes =
                 lancamentoRepository.findByDataBetween(inicioMes, fimMes);
+
+        List<Lancamento> todosLancamentos =
+                lancamentoRepository.findAll();
+
 
         BigDecimal rendaKleber =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.RECEITA,
                         "Kleber"
                 );
 
         BigDecimal rendaGiovanna =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.RECEITA,
                         "Giovanna"
                 );
@@ -65,14 +70,14 @@ public class HomeController {
 
         BigDecimal gastosKleber =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.GASTO,
                         "Kleber"
                 );
 
         BigDecimal gastosGiovanna =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.GASTO,
                         "Giovanna"
                 );
@@ -83,14 +88,14 @@ public class HomeController {
 
         BigDecimal guardadoKleber =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.GUARDADO,
                         "Kleber"
                 );
 
         BigDecimal guardadoGiovanna =
                 somarPorTipoEResponsavel(
-                        lancamentos,
+                        lancamentosMes,
                         TipoLancamento.GUARDADO,
                         "Giovanna"
                 );
@@ -104,8 +109,39 @@ public class HomeController {
                 .subtract(guardadoTotal);
 
 
-        YearMonth periodoAnterior = periodo.minusMonths(1);
-        YearMonth proximoPeriodo = periodo.plusMonths(1);
+        // META FINANCEIRA
+
+        BigDecimal metaFinanceira =
+                new BigDecimal("20000.00");
+
+        BigDecimal guardadoAcumulado =
+                somarPorTipo(
+                        todosLancamentos,
+                        TipoLancamento.GUARDADO
+                );
+
+        BigDecimal percentualMeta;
+
+        if (metaFinanceira.compareTo(BigDecimal.ZERO) > 0) {
+
+            percentualMeta = guardadoAcumulado
+                    .divide(metaFinanceira, 4, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"));
+
+        } else {
+
+            percentualMeta = BigDecimal.ZERO;
+        }
+
+        BigDecimal percentualBarra =
+                percentualMeta.min(new BigDecimal("100"));
+
+
+        YearMonth periodoAnterior =
+                periodo.minusMonths(1);
+
+        YearMonth proximoPeriodo =
+                periodo.plusMonths(1);
 
 
         String nomeMes = periodo
@@ -123,7 +159,6 @@ public class HomeController {
         model.addAttribute("nomeMes", nomeMes);
         model.addAttribute("ano", periodo.getYear());
 
-
         model.addAttribute(
                 "anoAnterior",
                 periodoAnterior.getYear()
@@ -133,7 +168,6 @@ public class HomeController {
                 "mesAnterior",
                 periodoAnterior.getMonthValue()
         );
-
 
         model.addAttribute(
                 "proximoAno",
@@ -199,6 +233,28 @@ public class HomeController {
                 formatarMoeda(saldo)
         );
 
+
+        model.addAttribute(
+                "metaFinanceira",
+                formatarMoeda(metaFinanceira)
+        );
+
+        model.addAttribute(
+                "guardadoAcumulado",
+                formatarMoeda(guardadoAcumulado)
+        );
+
+        model.addAttribute(
+                "percentualMeta",
+                percentualMeta.setScale(1, RoundingMode.HALF_UP)
+        );
+
+        model.addAttribute(
+                "percentualBarra",
+                percentualBarra.setScale(1, RoundingMode.HALF_UP)
+        );
+
+
         return "home";
     }
 
@@ -213,6 +269,20 @@ public class HomeController {
                 .filter(lancamento ->
                         lancamento.getResponsavel()
                                 .equalsIgnoreCase(responsavel))
+                .map(Lancamento::getValor)
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                );
+    }
+
+    private BigDecimal somarPorTipo(
+            List<Lancamento> lancamentos,
+            TipoLancamento tipo) {
+
+        return lancamentos.stream()
+                .filter(lancamento ->
+                        lancamento.getTipo() == tipo)
                 .map(Lancamento::getValor)
                 .reduce(
                         BigDecimal.ZERO,
