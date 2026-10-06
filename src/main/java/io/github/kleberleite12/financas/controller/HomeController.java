@@ -15,19 +15,22 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
 
+    private static final BigDecimal META_INDIVIDUAL =
+            new BigDecimal("20000.00");
+
     private final LancamentoRepository lancamentoRepository;
 
-    public HomeController(LancamentoRepository lancamentoRepository) {
-        this.lancamentoRepository = lancamentoRepository;
+    public HomeController(
+            LancamentoRepository lancamentoRepository) {
+
+        this.lancamentoRepository =
+                lancamentoRepository;
     }
 
     @GetMapping("/")
@@ -38,125 +41,57 @@ public class HomeController {
             Model model) {
 
         String nomeUsuario =
-                formatarNomeUsuario(authentication.getName());
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
 
         YearMonth periodo;
 
-        if (ano != null && mes != null && mes >= 1 && mes <= 12) {
-            periodo = YearMonth.of(ano, mes);
+        if (ano != null
+                && mes != null
+                && mes >= 1
+                && mes <= 12) {
+
+            periodo = YearMonth.of(
+                    ano,
+                    mes
+            );
+
         } else {
+
             periodo = YearMonth.now();
         }
 
-        LocalDate inicioMes = periodo.atDay(1);
-        LocalDate fimMes = periodo.atEndOfMonth();
+        LocalDate inicioMes =
+                periodo.atDay(1);
+
+        LocalDate fimMes =
+                periodo.atEndOfMonth();
+
 
         List<Lancamento> lancamentosMes =
-                lancamentoRepository.findByDataBetween(
-                        inicioMes,
-                        fimMes
-                );
+                lancamentoRepository
+                        .findByDataBetween(
+                                inicioMes,
+                                fimMes
+                        );
 
         List<Lancamento> todosLancamentos =
                 lancamentoRepository.findAll();
 
 
-        BigDecimal rendaKleber =
-                somarPorTipoEResponsavel(
+        DadosFinanceiros kleber =
+                calcularDados(
                         lancamentosMes,
-                        TipoLancamento.RECEITA,
-                        "Kleber"
-                );
-
-        BigDecimal rendaGiovanna =
-                somarPorTipoEResponsavel(
-                        lancamentosMes,
-                        TipoLancamento.RECEITA,
-                        "Giovanna"
-                );
-
-        BigDecimal rendaTotal =
-                rendaKleber.add(rendaGiovanna);
-
-
-        BigDecimal gastosKleber =
-                somarPorTipoEResponsavel(
-                        lancamentosMes,
-                        TipoLancamento.GASTO,
-                        "Kleber"
-                );
-
-        BigDecimal gastosGiovanna =
-                somarPorTipoEResponsavel(
-                        lancamentosMes,
-                        TipoLancamento.GASTO,
-                        "Giovanna"
-                );
-
-        BigDecimal gastosTotais =
-                gastosKleber.add(gastosGiovanna);
-
-
-        BigDecimal guardadoKleber =
-                somarPorTipoEResponsavel(
-                        lancamentosMes,
-                        TipoLancamento.GUARDADO,
-                        "Kleber"
-                );
-
-        BigDecimal guardadoGiovanna =
-                somarPorTipoEResponsavel(
-                        lancamentosMes,
-                        TipoLancamento.GUARDADO,
-                        "Giovanna"
-                );
-
-        BigDecimal guardadoTotal =
-                guardadoKleber.add(guardadoGiovanna);
-
-
-        BigDecimal saldo = rendaTotal
-                .subtract(gastosTotais)
-                .subtract(guardadoTotal);
-
-
-        Map<String, String> gastosPorCategoria =
-                calcularGastosPorCategoria(
-                        lancamentosMes
-                );
-
-
-        BigDecimal metaFinanceira =
-                new BigDecimal("20000.00");
-
-        BigDecimal guardadoAcumulado =
-                somarPorTipo(
                         todosLancamentos,
-                        TipoLancamento.GUARDADO
+                        "Kleber"
                 );
 
-        BigDecimal percentualMeta;
-
-        if (metaFinanceira.compareTo(BigDecimal.ZERO) > 0) {
-
-            percentualMeta = guardadoAcumulado
-                    .divide(
-                            metaFinanceira,
-                            4,
-                            RoundingMode.HALF_UP
-                    )
-                    .multiply(
-                            new BigDecimal("100")
-                    );
-
-        } else {
-
-            percentualMeta = BigDecimal.ZERO;
-        }
-
-        BigDecimal percentualBarra =
-                percentualMeta.min(
-                        new BigDecimal("100")
+        DadosFinanceiros giovanna =
+                calcularDados(
+                        lancamentosMes,
+                        todosLancamentos,
+                        "Giovanna"
                 );
 
 
@@ -167,12 +102,12 @@ public class HomeController {
                 periodo.plusMonths(1);
 
 
-        String nomeMes = periodo
-                .getMonth()
-                .getDisplayName(
-                        TextStyle.FULL,
-                        Locale.forLanguageTag("pt-BR")
-                );
+        String nomeMes =
+                periodo.getMonth()
+                        .getDisplayName(
+                                TextStyle.FULL,
+                                Locale.forLanguageTag("pt-BR")
+                        );
 
         nomeMes =
                 nomeMes.substring(0, 1).toUpperCase()
@@ -215,174 +150,204 @@ public class HomeController {
         );
 
 
-        model.addAttribute(
-                "rendaKleber",
-                formatarMoeda(rendaKleber)
+        adicionarDadosPessoa(
+                model,
+                "kleber",
+                kleber
         );
 
-        model.addAttribute(
-                "rendaGiovanna",
-                formatarMoeda(rendaGiovanna)
-        );
-
-        model.addAttribute(
-                "rendaTotal",
-                formatarMoeda(rendaTotal)
+        adicionarDadosPessoa(
+                model,
+                "giovanna",
+                giovanna
         );
 
 
         model.addAttribute(
-                "gastosKleber",
-                formatarMoeda(gastosKleber)
+                "metaIndividual",
+                formatarMoeda(META_INDIVIDUAL)
         );
-
-        model.addAttribute(
-                "gastosGiovanna",
-                formatarMoeda(gastosGiovanna)
-        );
-
-        model.addAttribute(
-                "gastosTotais",
-                formatarMoeda(gastosTotais)
-        );
-
-
-        model.addAttribute(
-                "guardadoKleber",
-                formatarMoeda(guardadoKleber)
-        );
-
-        model.addAttribute(
-                "guardadoGiovanna",
-                formatarMoeda(guardadoGiovanna)
-        );
-
-        model.addAttribute(
-                "guardadoTotal",
-                formatarMoeda(guardadoTotal)
-        );
-
-
-        model.addAttribute(
-                "saldo",
-                formatarMoeda(saldo)
-        );
-
-
-        model.addAttribute(
-                "gastosPorCategoria",
-                gastosPorCategoria
-        );
-
-
-        model.addAttribute(
-                "metaFinanceira",
-                formatarMoeda(metaFinanceira)
-        );
-
-        model.addAttribute(
-                "guardadoAcumulado",
-                formatarMoeda(guardadoAcumulado)
-        );
-
-        model.addAttribute(
-                "percentualMeta",
-                percentualMeta.setScale(
-                        1,
-                        RoundingMode.HALF_UP
-                )
-        );
-
-        model.addAttribute(
-                "percentualBarra",
-                percentualBarra.setScale(
-                        1,
-                        RoundingMode.HALF_UP
-                )
-        );
-
 
         return "home";
     }
 
-    private BigDecimal somarPorTipoEResponsavel(
-            List<Lancamento> lancamentos,
-            TipoLancamento tipo,
+    private DadosFinanceiros calcularDados(
+            List<Lancamento> lancamentosMes,
+            List<Lancamento> todosLancamentos,
             String responsavel) {
 
-        return lancamentos.stream()
-                .filter(lancamento ->
-                        lancamento.getTipo() == tipo)
-                .filter(lancamento ->
-                        lancamento.getResponsavel()
-                                .equalsIgnoreCase(responsavel))
-                .map(Lancamento::getValor)
-                .reduce(
-                        BigDecimal.ZERO,
-                        BigDecimal::add
+        BigDecimal rendaPrincipal =
+                somar(
+                        lancamentosMes,
+                        responsavel,
+                        TipoLancamento.RENDA_PRINCIPAL,
+                        TipoLancamento.RECEITA
                 );
-    }
 
-    private BigDecimal somarPorTipo(
-            List<Lancamento> lancamentos,
-            TipoLancamento tipo) {
-
-        return lancamentos.stream()
-                .filter(lancamento ->
-                        lancamento.getTipo() == tipo)
-                .map(Lancamento::getValor)
-                .reduce(
-                        BigDecimal.ZERO,
-                        BigDecimal::add
+        BigDecimal rendaExtra =
+                somar(
+                        lancamentosMes,
+                        responsavel,
+                        TipoLancamento.RENDA_EXTRA
                 );
-    }
 
-    private Map<String, String> calcularGastosPorCategoria(
-            List<Lancamento> lancamentos) {
+        BigDecimal cartaoCredito =
+                somar(
+                        lancamentosMes,
+                        responsavel,
+                        TipoLancamento.CARTAO_CREDITO,
+                        TipoLancamento.GASTO
+                );
 
-        Map<String, BigDecimal> totais =
-                lancamentos.stream()
-                        .filter(lancamento ->
-                                lancamento.getTipo()
-                                        == TipoLancamento.GASTO)
-                        .collect(
-                                Collectors.groupingBy(
-                                        lancamento ->
-                                                lancamento
-                                                        .getCategoria()
-                                                        .trim(),
+        BigDecimal outrosGastos =
+                somar(
+                        lancamentosMes,
+                        responsavel,
+                        TipoLancamento.OUTRO_GASTO
+                );
 
-                                        Collectors.reducing(
-                                                BigDecimal.ZERO,
-                                                Lancamento::getValor,
-                                                BigDecimal::add
-                                        )
-                                )
+        BigDecimal guardadoMes =
+                somar(
+                        lancamentosMes,
+                        responsavel,
+                        TipoLancamento.GUARDADO
+                );
+
+        BigDecimal saldo =
+                rendaPrincipal
+                        .add(rendaExtra)
+                        .subtract(cartaoCredito)
+                        .subtract(outrosGastos)
+                        .subtract(guardadoMes);
+
+
+        BigDecimal guardadoAcumulado =
+                somar(
+                        todosLancamentos,
+                        responsavel,
+                        TipoLancamento.GUARDADO
+                );
+
+
+        BigDecimal percentualMeta =
+                guardadoAcumulado
+                        .divide(
+                                META_INDIVIDUAL,
+                                4,
+                                RoundingMode.HALF_UP
+                        )
+                        .multiply(
+                                new BigDecimal("100")
                         );
 
-        return totais.entrySet()
-                .stream()
-                .sorted(
-                        Map.Entry
-                                .<String, BigDecimal>
-                                        comparingByValue()
-                                .reversed()
-                )
-                .collect(
-                        Collectors.toMap(
-                                Map.Entry::getKey,
-
-                                entrada ->
-                                        formatarMoeda(
-                                                entrada.getValue()
-                                        ),
-
-                                (valor1, valor2) ->
-                                        valor1,
-
-                                LinkedHashMap::new
-                        )
+        BigDecimal percentualBarra =
+                percentualMeta.min(
+                        new BigDecimal("100")
                 );
+
+
+        return new DadosFinanceiros(
+                rendaPrincipal,
+                rendaExtra,
+                cartaoCredito,
+                outrosGastos,
+                guardadoMes,
+                saldo,
+                guardadoAcumulado,
+                percentualMeta,
+                percentualBarra
+        );
+    }
+
+    private BigDecimal somar(
+            List<Lancamento> lancamentos,
+            String responsavel,
+            TipoLancamento... tipos) {
+
+        return lancamentos.stream()
+
+                .filter(lancamento ->
+                        lancamento.getResponsavel()
+                                .equalsIgnoreCase(responsavel)
+                )
+
+                .filter(lancamento -> {
+
+                    for (TipoLancamento tipo : tipos) {
+
+                        if (lancamento.getTipo() == tipo) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+
+                .map(Lancamento::getValor)
+
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                );
+    }
+
+    private void adicionarDadosPessoa(
+            Model model,
+            String prefixo,
+            DadosFinanceiros dados) {
+
+        model.addAttribute(
+                prefixo + "RendaPrincipal",
+                formatarMoeda(dados.rendaPrincipal())
+        );
+
+        model.addAttribute(
+                prefixo + "RendaExtra",
+                formatarMoeda(dados.rendaExtra())
+        );
+
+        model.addAttribute(
+                prefixo + "CartaoCredito",
+                formatarMoeda(dados.cartaoCredito())
+        );
+
+        model.addAttribute(
+                prefixo + "OutrosGastos",
+                formatarMoeda(dados.outrosGastos())
+        );
+
+        model.addAttribute(
+                prefixo + "GuardadoMes",
+                formatarMoeda(dados.guardadoMes())
+        );
+
+        model.addAttribute(
+                prefixo + "Saldo",
+                formatarMoeda(dados.saldo())
+        );
+
+        model.addAttribute(
+                prefixo + "GuardadoAcumulado",
+                formatarMoeda(dados.guardadoAcumulado())
+        );
+
+        model.addAttribute(
+                prefixo + "PercentualMeta",
+                dados.percentualMeta()
+                        .setScale(
+                                1,
+                                RoundingMode.HALF_UP
+                        )
+        );
+
+        model.addAttribute(
+                prefixo + "PercentualBarra",
+                dados.percentualBarra()
+                        .setScale(
+                                1,
+                                RoundingMode.HALF_UP
+                        )
+        );
     }
 
     private String formatarMoeda(
@@ -399,11 +364,28 @@ public class HomeController {
     private String formatarNomeUsuario(
             String usuario) {
 
-        if (usuario == null || usuario.isBlank()) {
+        if (usuario == null
+                || usuario.isBlank()) {
+
             return "Usuário";
         }
 
         return usuario.substring(0, 1).toUpperCase()
                 + usuario.substring(1).toLowerCase();
+    }
+
+    private record DadosFinanceiros(
+
+            BigDecimal rendaPrincipal,
+            BigDecimal rendaExtra,
+            BigDecimal cartaoCredito,
+            BigDecimal outrosGastos,
+            BigDecimal guardadoMes,
+            BigDecimal saldo,
+            BigDecimal guardadoAcumulado,
+            BigDecimal percentualMeta,
+            BigDecimal percentualBarra
+
+    ) {
     }
 }

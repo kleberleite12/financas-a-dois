@@ -3,6 +3,7 @@ package io.github.kleberleite12.financas.controller;
 import io.github.kleberleite12.financas.model.Lancamento;
 import io.github.kleberleite12.financas.model.TipoLancamento;
 import io.github.kleberleite12.financas.repository.LancamentoRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,12 +11,25 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class LancamentoController {
 
     private final LancamentoRepository lancamentoRepository;
+
+    private static final List<TipoLancamento> TIPOS_ATIVOS = List.of(
+            TipoLancamento.RENDA_PRINCIPAL,
+            TipoLancamento.RENDA_EXTRA,
+            TipoLancamento.CARTAO_CREDITO,
+            TipoLancamento.OUTRO_GASTO,
+            TipoLancamento.GUARDADO
+    );
 
     public LancamentoController(LancamentoRepository lancamentoRepository) {
         this.lancamentoRepository = lancamentoRepository;
@@ -23,35 +37,34 @@ public class LancamentoController {
 
     @GetMapping("/lancamentos")
     public String listar(
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) String responsavel,
+            @RequestParam(required = false) TipoLancamento tipo,
+            @RequestParam(required = false) String busca,
             Model model,
             Authentication authentication) {
 
         String nomeUsuario =
                 formatarNomeUsuario(authentication.getName());
 
-        model.addAttribute(
-                "lancamentos",
-                lancamentoRepository.findAll()
-        );
+        List<Lancamento> lancamentos =
+                buscarLancamentosFiltrados(
+                        periodo,
+                        responsavel,
+                        tipo,
+                        busca
+                );
 
-        model.addAttribute(
-                "lancamento",
-                new Lancamento()
-        );
-
-        model.addAttribute(
-                "tipos",
-                TipoLancamento.values()
-        );
-
-        model.addAttribute(
-                "modoEdicao",
-                false
-        );
-
-        model.addAttribute(
-                "nomeUsuario",
-                nomeUsuario
+        prepararPagina(
+                model,
+                new Lancamento(),
+                lancamentos,
+                nomeUsuario,
+                false,
+                periodo,
+                responsavel,
+                tipo,
+                busca
         );
 
         return "lancamentos";
@@ -75,34 +88,27 @@ public class LancamentoController {
                                 )
                         );
 
-        verificarDono(
+        verificarDono(lancamento, nomeUsuario);
+
+        // Converte registros antigos ao editar
+        if (lancamento.getTipo() == TipoLancamento.RECEITA) {
+            lancamento.setTipo(TipoLancamento.RENDA_PRINCIPAL);
+        }
+
+        if (lancamento.getTipo() == TipoLancamento.GASTO) {
+            lancamento.setTipo(TipoLancamento.CARTAO_CREDITO);
+        }
+
+        prepararPagina(
+                model,
                 lancamento,
-                nomeUsuario
-        );
-
-        model.addAttribute(
-                "lancamentos",
-                lancamentoRepository.findAll()
-        );
-
-        model.addAttribute(
-                "lancamento",
-                lancamento
-        );
-
-        model.addAttribute(
-                "tipos",
-                TipoLancamento.values()
-        );
-
-        model.addAttribute(
-                "modoEdicao",
-                true
-        );
-
-        model.addAttribute(
-                "nomeUsuario",
-                nomeUsuario
+                buscarLancamentosFiltrados(null, null, null, null),
+                nomeUsuario,
+                true,
+                null,
+                null,
+                null,
+                null
         );
 
         return "lancamentos";
@@ -118,15 +124,12 @@ public class LancamentoController {
 
         if (lancamento.getId() == null) {
 
-            lancamento.setResponsavel(
-                    nomeUsuario
-            );
+            lancamento.setResponsavel(nomeUsuario);
 
         } else {
 
             Lancamento existente =
-                    lancamentoRepository
-                            .findById(lancamento.getId())
+                    lancamentoRepository.findById(lancamento.getId())
                             .orElseThrow(() ->
                                     new ResponseStatusException(
                                             HttpStatus.NOT_FOUND,
@@ -134,19 +137,14 @@ public class LancamentoController {
                                     )
                             );
 
-            verificarDono(
-                    existente,
-                    nomeUsuario
-            );
+            verificarDono(existente, nomeUsuario);
 
             lancamento.setResponsavel(
                     existente.getResponsavel()
             );
         }
 
-        lancamentoRepository.save(
-                lancamento
-        );
+        lancamentoRepository.save(lancamento);
 
         return "redirect:/lancamentos";
     }
@@ -168,24 +166,151 @@ public class LancamentoController {
                                 )
                         );
 
-        verificarDono(
-                lancamento,
-                nomeUsuario
-        );
+        verificarDono(lancamento, nomeUsuario);
 
-        lancamentoRepository.delete(
-                lancamento
-        );
+        lancamentoRepository.delete(lancamento);
 
         return "redirect:/lancamentos";
+    }
+
+    private List<Lancamento> buscarLancamentosFiltrados(
+            String periodo,
+            String responsavel,
+            TipoLancamento tipo,
+            String busca) {
+
+        List<Lancamento> lancamentos =
+                lancamentoRepository.findAll(
+                        Sort.by(
+                                Sort.Order.desc("data"),
+                                Sort.Order.desc("id")
+                        )
+                );
+
+        return lancamentos.stream()
+
+                .filter(lancamento ->
+                        filtrarPeriodo(lancamento, periodo)
+                )
+
+                .filter(lancamento ->
+                        responsavel == null
+                                || responsavel.isBlank()
+                                || lancamento.getResponsavel()
+                                .equalsIgnoreCase(responsavel)
+                )
+
+                .filter(lancamento ->
+                        tipo == null
+                                || lancamento.getTipo() == tipo
+                )
+
+                .filter(lancamento ->
+                        filtrarBusca(lancamento, busca)
+                )
+
+                .toList();
+    }
+
+    private boolean filtrarPeriodo(
+            Lancamento lancamento,
+            String periodo) {
+
+        if (periodo == null || periodo.isBlank()) {
+            return true;
+        }
+
+        try {
+
+            YearMonth periodoSelecionado =
+                    YearMonth.parse(periodo);
+
+            YearMonth periodoLancamento =
+                    YearMonth.from(lancamento.getData());
+
+            return periodoSelecionado.equals(periodoLancamento);
+
+        } catch (Exception erro) {
+
+            return true;
+        }
+    }
+
+    private boolean filtrarBusca(
+            Lancamento lancamento,
+            String busca) {
+
+        if (busca == null || busca.isBlank()) {
+            return true;
+        }
+
+        String textoBusca =
+                busca.trim().toLowerCase(Locale.ROOT);
+
+        String descricao =
+                lancamento.getDescricao() == null
+                        ? ""
+                        : lancamento.getDescricao()
+                        .toLowerCase(Locale.ROOT);
+
+        String categoria =
+                lancamento.getCategoria() == null
+                        ? ""
+                        : lancamento.getCategoria()
+                        .toLowerCase(Locale.ROOT);
+
+        return descricao.contains(textoBusca)
+                || categoria.contains(textoBusca);
+    }
+
+    private void prepararPagina(
+            Model model,
+            Lancamento lancamento,
+            List<Lancamento> lancamentos,
+            String nomeUsuario,
+            boolean modoEdicao,
+            String periodo,
+            String responsavel,
+            TipoLancamento tipo,
+            String busca) {
+
+        model.addAttribute("lancamentos", lancamentos);
+        model.addAttribute("lancamento", lancamento);
+        model.addAttribute("tipos", TIPOS_ATIVOS);
+        model.addAttribute("modoEdicao", modoEdicao);
+        model.addAttribute("nomeUsuario", nomeUsuario);
+
+        model.addAttribute(
+                "periodoSelecionado",
+                periodo
+        );
+
+        model.addAttribute(
+                "responsavelSelecionado",
+                responsavel
+        );
+
+        model.addAttribute(
+                "tipoSelecionado",
+                tipo
+        );
+
+        model.addAttribute(
+                "busca",
+                busca
+        );
+
+        model.addAttribute(
+                "quantidadeResultados",
+                lancamentos.size()
+        );
     }
 
     private void verificarDono(
             Lancamento lancamento,
             String nomeUsuario) {
 
-        if (!lancamento
-                .getResponsavel()
+        if (!lancamento.getResponsavel()
                 .equalsIgnoreCase(nomeUsuario)) {
 
             throw new ResponseStatusException(
@@ -195,8 +320,7 @@ public class LancamentoController {
         }
     }
 
-    private String formatarNomeUsuario(
-            String usuario) {
+    private String formatarNomeUsuario(String usuario) {
 
         if (usuario == null || usuario.isBlank()) {
             return "Usuário";

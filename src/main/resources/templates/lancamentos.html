@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -85,6 +86,7 @@
 
                     <input type="text"
                            th:field="*{descricao}"
+                           placeholder="Ex.: Supermercado"
                            required>
 
                 </div>
@@ -150,6 +152,7 @@
 
                     <input type="text"
                            th:field="*{categoria}"
+                           placeholder="Ex.: Mercado"
                            required>
 
                 </div>
@@ -179,14 +182,127 @@
         </section>
 
 
+        <section class="formulario">
+
+            <h2>
+                Filtrar lançamentos
+            </h2>
+
+
+            <form method="get"
+                  th:action="@{/lancamentos}">
+
+
+                <div class="campo">
+
+                    <label>
+                        Mês
+                    </label>
+
+                    <input type="month"
+                           name="periodo"
+                           th:value="${periodoSelecionado}">
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Responsável
+                    </label>
+
+                    <select name="responsavel">
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        <option value="Kleber"
+                                th:selected="${responsavelSelecionado == 'Kleber'}">
+                            Kleber
+                        </option>
+
+                        <option value="Giovanna"
+                                th:selected="${responsavelSelecionado == 'Giovanna'}">
+                            Giovanna
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Tipo
+                    </label>
+
+                    <select name="tipo">
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        <option
+                                th:each="tipo : ${tipos}"
+                                th:value="${tipo}"
+                                th:text="${tipo}"
+                                th:selected="${tipoSelecionado == tipo}">
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Buscar
+                    </label>
+
+                    <input type="text"
+                           name="busca"
+                           th:value="${busca}"
+                           placeholder="Descrição ou categoria">
+
+                </div>
+
+
+                <button class="botao"
+                        type="submit">
+                    Filtrar
+                </button>
+
+                <a class="botao"
+                   th:href="@{/lancamentos}">
+                    Limpar filtros
+                </a>
+
+            </form>
+
+        </section>
+
+
         <section class="tabela-container">
 
             <h2>
                 Lançamentos cadastrados
             </h2>
 
+            <p>
+                <strong th:text="${quantidadeResultados}">
+                    0
+                </strong>
+                lançamento(s) encontrado(s).
+            </p>
 
-            <table>
+            <br>
+
+
+            <table th:if="${!lancamentos.isEmpty()}">
 
                 <thead>
 
@@ -269,6 +385,11 @@
                 </tbody>
 
             </table>
+
+
+            <p th:if="${lancamentos.isEmpty()}">
+                Nenhum lançamento encontrado com esses filtros.
+            </p>
 
         </section>
 
