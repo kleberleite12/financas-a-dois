@@ -15,8 +15,11 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -34,7 +37,8 @@ public class HomeController {
             Authentication authentication,
             Model model) {
 
-        String nomeUsuario = formatarNomeUsuario(authentication.getName());
+        String nomeUsuario =
+                formatarNomeUsuario(authentication.getName());
 
         YearMonth periodo;
 
@@ -48,7 +52,10 @@ public class HomeController {
         LocalDate fimMes = periodo.atEndOfMonth();
 
         List<Lancamento> lancamentosMes =
-                lancamentoRepository.findByDataBetween(inicioMes, fimMes);
+                lancamentoRepository.findByDataBetween(
+                        inicioMes,
+                        fimMes
+                );
 
         List<Lancamento> todosLancamentos =
                 lancamentoRepository.findAll();
@@ -113,6 +120,12 @@ public class HomeController {
                 .subtract(guardadoTotal);
 
 
+        Map<String, String> gastosPorCategoria =
+                calcularGastosPorCategoria(
+                        lancamentosMes
+                );
+
+
         BigDecimal metaFinanceira =
                 new BigDecimal("20000.00");
 
@@ -127,8 +140,14 @@ public class HomeController {
         if (metaFinanceira.compareTo(BigDecimal.ZERO) > 0) {
 
             percentualMeta = guardadoAcumulado
-                    .divide(metaFinanceira, 4, RoundingMode.HALF_UP)
-                    .multiply(new BigDecimal("100"));
+                    .divide(
+                            metaFinanceira,
+                            4,
+                            RoundingMode.HALF_UP
+                    )
+                    .multiply(
+                            new BigDecimal("100")
+                    );
 
         } else {
 
@@ -136,7 +155,9 @@ public class HomeController {
         }
 
         BigDecimal percentualBarra =
-                percentualMeta.min(new BigDecimal("100"));
+                percentualMeta.min(
+                        new BigDecimal("100")
+                );
 
 
         YearMonth periodoAnterior =
@@ -158,10 +179,20 @@ public class HomeController {
                         + nomeMes.substring(1);
 
 
-        model.addAttribute("nomeUsuario", nomeUsuario);
+        model.addAttribute(
+                "nomeUsuario",
+                nomeUsuario
+        );
 
-        model.addAttribute("nomeMes", nomeMes);
-        model.addAttribute("ano", periodo.getYear());
+        model.addAttribute(
+                "nomeMes",
+                nomeMes
+        );
+
+        model.addAttribute(
+                "ano",
+                periodo.getYear()
+        );
 
         model.addAttribute(
                 "anoAnterior",
@@ -239,6 +270,12 @@ public class HomeController {
 
 
         model.addAttribute(
+                "gastosPorCategoria",
+                gastosPorCategoria
+        );
+
+
+        model.addAttribute(
                 "metaFinanceira",
                 formatarMoeda(metaFinanceira)
         );
@@ -250,12 +287,18 @@ public class HomeController {
 
         model.addAttribute(
                 "percentualMeta",
-                percentualMeta.setScale(1, RoundingMode.HALF_UP)
+                percentualMeta.setScale(
+                        1,
+                        RoundingMode.HALF_UP
+                )
         );
 
         model.addAttribute(
                 "percentualBarra",
-                percentualBarra.setScale(1, RoundingMode.HALF_UP)
+                percentualBarra.setScale(
+                        1,
+                        RoundingMode.HALF_UP
+                )
         );
 
 
@@ -294,7 +337,56 @@ public class HomeController {
                 );
     }
 
-    private String formatarMoeda(BigDecimal valor) {
+    private Map<String, String> calcularGastosPorCategoria(
+            List<Lancamento> lancamentos) {
+
+        Map<String, BigDecimal> totais =
+                lancamentos.stream()
+                        .filter(lancamento ->
+                                lancamento.getTipo()
+                                        == TipoLancamento.GASTO)
+                        .collect(
+                                Collectors.groupingBy(
+                                        lancamento ->
+                                                lancamento
+                                                        .getCategoria()
+                                                        .trim(),
+
+                                        Collectors.reducing(
+                                                BigDecimal.ZERO,
+                                                Lancamento::getValor,
+                                                BigDecimal::add
+                                        )
+                                )
+                        );
+
+        return totais.entrySet()
+                .stream()
+                .sorted(
+                        Map.Entry
+                                .<String, BigDecimal>
+                                        comparingByValue()
+                                .reversed()
+                )
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+
+                                entrada ->
+                                        formatarMoeda(
+                                                entrada.getValue()
+                                        ),
+
+                                (valor1, valor2) ->
+                                        valor1,
+
+                                LinkedHashMap::new
+                        )
+                );
+    }
+
+    private String formatarMoeda(
+            BigDecimal valor) {
 
         NumberFormat formato =
                 NumberFormat.getCurrencyInstance(
@@ -304,7 +396,8 @@ public class HomeController {
         return formato.format(valor);
     }
 
-    private String formatarNomeUsuario(String usuario) {
+    private String formatarNomeUsuario(
+            String usuario) {
 
         if (usuario == null || usuario.isBlank()) {
             return "Usuário";

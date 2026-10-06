@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -41,6 +42,7 @@
 
         </div>
 
+
         <div class="acoes-topo">
 
             <a class="botao-principal"
@@ -70,16 +72,23 @@
             ←
         </a>
 
+
         <div class="mes-atual">
 
             <span>PERÍODO</span>
 
             <strong>
-                <span th:text="${nomeMes}"></span>
-                <span th:text="${ano}"></span>
+
+                <span th:text="${nomeMes}">
+                </span>
+
+                <span th:text="${ano}">
+                </span>
+
             </strong>
 
         </div>
+
 
         <a class="botao-mes"
            th:href="@{/(ano=${proximoAno},mes=${proximoMes})}">
@@ -93,9 +102,12 @@
 
         <section class="destaques">
 
+
             <div class="card destaque receita">
 
-                <span>Renda total</span>
+                <span>
+                    Renda total
+                </span>
 
                 <strong th:text="${rendaTotal}">
                     R$ 0,00
@@ -106,7 +118,9 @@
 
             <div class="card destaque gasto">
 
-                <span>Gastos totais</span>
+                <span>
+                    Gastos totais
+                </span>
 
                 <strong th:text="${gastosTotais}">
                     R$ 0,00
@@ -117,7 +131,9 @@
 
             <div class="card destaque guardado">
 
-                <span>Total guardado</span>
+                <span>
+                    Total guardado
+                </span>
 
                 <strong th:text="${guardadoTotal}">
                     R$ 0,00
@@ -128,7 +144,9 @@
 
             <div class="card destaque saldo">
 
-                <span>Saldo disponível</span>
+                <span>
+                    Saldo disponível
+                </span>
 
                 <strong th:text="${saldo}">
                     R$ 0,00
@@ -143,13 +161,16 @@
 
             <div class="titulo-secao">
 
-                <h2>Meta financeira</h2>
+                <h2>
+                    Meta financeira
+                </h2>
 
                 <p>
                     Progresso acumulado do casal.
                 </p>
 
             </div>
+
 
             <div class="card pessoa">
 
@@ -163,25 +184,35 @@
                         R$ 0,00
                     </strong>
 
+
                     <p>
+
                         Meta:
+
                         <span th:text="${metaFinanceira}">
                             R$ 20.000,00
                         </span>
+
                     </p>
 
+
                     <br>
+
 
                     <progress
                             th:value="${percentualBarra}"
                             max="100">
                     </progress>
 
+
                     <p>
+
                         <strong th:text="${percentualMeta} + '%'">
                             0%
                         </strong>
+
                         concluído
+
                     </p>
 
                 </div>
@@ -195,7 +226,9 @@
 
             <div class="titulo-secao">
 
-                <h2>Rendas</h2>
+                <h2>
+                    Rendas
+                </h2>
 
                 <p>
                     Quanto cada um recebeu no período.
@@ -214,7 +247,9 @@
 
                     <div>
 
-                        <span>Kleber</span>
+                        <span>
+                            Kleber
+                        </span>
 
                         <strong th:text="${rendaKleber}">
                             R$ 0,00
@@ -233,7 +268,9 @@
 
                     <div>
 
-                        <span>Giovanna</span>
+                        <span>
+                            Giovanna
+                        </span>
 
                         <strong th:text="${rendaGiovanna}">
                             R$ 0,00
@@ -252,7 +289,9 @@
 
             <div class="titulo-secao">
 
-                <h2>Gastos</h2>
+                <h2>
+                    Gastos
+                </h2>
 
                 <p>
                     Despesas registradas no período.
@@ -271,7 +310,9 @@
 
                     <div>
 
-                        <span>Kleber</span>
+                        <span>
+                            Kleber
+                        </span>
 
                         <strong th:text="${gastosKleber}">
                             R$ 0,00
@@ -290,7 +331,9 @@
 
                     <div>
 
-                        <span>Giovanna</span>
+                        <span>
+                            Giovanna
+                        </span>
 
                         <strong th:text="${gastosGiovanna}">
                             R$ 0,00
@@ -309,7 +352,76 @@
 
             <div class="titulo-secao">
 
-                <h2>Valores guardados</h2>
+                <h2>
+                    Gastos por categoria
+                </h2>
+
+                <p>
+                    Onde o dinheiro foi gasto no período.
+                </p>
+
+            </div>
+
+
+            <div class="tabela-container">
+
+
+                <table th:if="${!gastosPorCategoria.isEmpty()}">
+
+                    <thead>
+
+                    <tr>
+
+                        <th>
+                            Categoria
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="categoria : ${gastosPorCategoria}">
+
+                        <td th:text="${categoria.key}">
+                            Categoria
+                        </td>
+
+                        <td th:text="${categoria.value}">
+                            R$ 0,00
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <p th:if="${gastosPorCategoria.isEmpty()}">
+
+                    Nenhum gasto registrado neste período.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="secao">
+
+            <div class="titulo-secao">
+
+                <h2>
+                    Valores guardados
+                </h2>
 
                 <p>
                     Quanto cada um separou neste período.
@@ -328,7 +440,9 @@
 
                     <div>
 
-                        <span>Kleber</span>
+                        <span>
+                            Kleber
+                        </span>
 
                         <strong th:text="${guardadoKleber}">
                             R$ 0,00
@@ -347,7 +461,9 @@
 
                     <div>
 
-                        <span>Giovanna</span>
+                        <span>
+                            Giovanna
+                        </span>
 
                         <strong th:text="${guardadoGiovanna}">
                             R$ 0,00
@@ -366,4 +482,5 @@
 </div>
 
 </body>
+
 </html>
