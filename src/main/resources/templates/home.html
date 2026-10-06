@@ -2,12 +2,17 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Finanças a Dois</title>
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet"
+          href="/css/style.css">
+
 </head>
 
 <body>
@@ -17,16 +22,53 @@
     <header class="topo">
 
         <div>
-            <span class="marca">FINANÇAS A DOIS</span>
-            <h1>Olá, Kleber e Giovanna 👋</h1>
-            <p>Visão geral das finanças do casal.</p>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+            <h1>
+                Olá, Kleber e Giovanna 👋
+            </h1>
+
+            <p>
+                Visão geral das finanças do casal.
+            </p>
+
         </div>
 
-        <a class="botao-principal" th:href="@{/lancamentos}">
+        <a class="botao-principal"
+           th:href="@{/lancamentos}">
             + Novo lançamento
         </a>
 
     </header>
+
+
+    <section class="seletor-mes">
+
+        <a class="botao-mes"
+           th:href="@{/(ano=${anoAnterior},mes=${mesAnterior})}">
+            ←
+        </a>
+
+        <div class="mes-atual">
+
+            <span>PERÍODO</span>
+
+            <strong>
+                <span th:text="${nomeMes}"></span>
+                <span th:text="${ano}"></span>
+            </strong>
+
+        </div>
+
+        <a class="botao-mes"
+           th:href="@{/(ano=${proximoAno},mes=${proximoMes})}">
+            →
+        </a>
+
+    </section>
 
 
     <main>
@@ -34,23 +76,46 @@
         <section class="destaques">
 
             <div class="card destaque receita">
+
                 <span>Renda total</span>
-                <strong th:text="${rendaTotal}">R$ 0,00</strong>
+
+                <strong th:text="${rendaTotal}">
+                    R$ 0,00
+                </strong>
+
             </div>
+
 
             <div class="card destaque gasto">
+
                 <span>Gastos totais</span>
-                <strong th:text="${gastosTotais}">R$ 0,00</strong>
+
+                <strong th:text="${gastosTotais}">
+                    R$ 0,00
+                </strong>
+
             </div>
+
 
             <div class="card destaque guardado">
+
                 <span>Total guardado</span>
-                <strong th:text="${guardadoTotal}">R$ 0,00</strong>
+
+                <strong th:text="${guardadoTotal}">
+                    R$ 0,00
+                </strong>
+
             </div>
+
 
             <div class="card destaque saldo">
+
                 <span>Saldo disponível</span>
-                <strong th:text="${saldo}">R$ 0,00</strong>
+
+                <strong th:text="${saldo}">
+                    R$ 0,00
+                </strong>
+
             </div>
 
         </section>
@@ -59,28 +124,53 @@
         <section class="secao">
 
             <div class="titulo-secao">
+
                 <h2>Rendas</h2>
-                <p>Quanto cada um recebeu.</p>
+
+                <p>
+                    Quanto cada um recebeu no período.
+                </p>
+
             </div>
+
 
             <div class="grid-duplo">
 
                 <div class="card pessoa">
-                    <div class="avatar">K</div>
+
+                    <div class="avatar">
+                        K
+                    </div>
 
                     <div>
+
                         <span>Kleber</span>
-                        <strong th:text="${rendaKleber}">R$ 0,00</strong>
+
+                        <strong th:text="${rendaKleber}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
+
                 <div class="card pessoa">
-                    <div class="avatar">G</div>
+
+                    <div class="avatar">
+                        G
+                    </div>
 
                     <div>
+
                         <span>Giovanna</span>
-                        <strong th:text="${rendaGiovanna}">R$ 0,00</strong>
+
+                        <strong th:text="${rendaGiovanna}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
             </div>
@@ -91,28 +181,53 @@
         <section class="secao">
 
             <div class="titulo-secao">
+
                 <h2>Gastos</h2>
-                <p>Despesas registradas por pessoa.</p>
+
+                <p>
+                    Despesas registradas no período.
+                </p>
+
             </div>
+
 
             <div class="grid-duplo">
 
                 <div class="card pessoa">
-                    <div class="avatar">K</div>
+
+                    <div class="avatar">
+                        K
+                    </div>
 
                     <div>
+
                         <span>Kleber</span>
-                        <strong th:text="${gastosKleber}">R$ 0,00</strong>
+
+                        <strong th:text="${gastosKleber}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
+
                 <div class="card pessoa">
-                    <div class="avatar">G</div>
+
+                    <div class="avatar">
+                        G
+                    </div>
 
                     <div>
+
                         <span>Giovanna</span>
-                        <strong th:text="${gastosGiovanna}">R$ 0,00</strong>
+
+                        <strong th:text="${gastosGiovanna}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
             </div>
@@ -123,28 +238,53 @@
         <section class="secao">
 
             <div class="titulo-secao">
+
                 <h2>Valores guardados</h2>
-                <p>Quanto cada um separou para os objetivos do casal.</p>
+
+                <p>
+                    Quanto cada um separou neste período.
+                </p>
+
             </div>
+
 
             <div class="grid-duplo">
 
                 <div class="card pessoa">
-                    <div class="avatar">K</div>
+
+                    <div class="avatar">
+                        K
+                    </div>
 
                     <div>
+
                         <span>Kleber</span>
-                        <strong th:text="${guardadoKleber}">R$ 0,00</strong>
+
+                        <strong th:text="${guardadoKleber}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
+
                 <div class="card pessoa">
-                    <div class="avatar">G</div>
+
+                    <div class="avatar">
+                        G
+                    </div>
 
                     <div>
+
                         <span>Giovanna</span>
-                        <strong th:text="${guardadoGiovanna}">R$ 0,00</strong>
+
+                        <strong th:text="${guardadoGiovanna}">
+                            R$ 0,00
+                        </strong>
+
                     </div>
+
                 </div>
 
             </div>
