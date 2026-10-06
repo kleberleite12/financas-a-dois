@@ -7,40 +7,146 @@
 
     <title>Finanças a Dois</title>
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
 <div class="container">
 
-    <header>
-        <h1>Finanças a Dois</h1>
-        <p>Controle financeiro compartilhado entre Kleber e Giovanna.</p>
+    <header class="topo">
+
+        <div>
+            <span class="marca">FINANÇAS A DOIS</span>
+            <h1>Olá, Kleber e Giovanna 👋</h1>
+            <p>Visão geral das finanças do casal.</p>
+        </div>
+
+        <a class="botao-principal" th:href="@{/lancamentos}">
+            + Novo lançamento
+        </a>
+
     </header>
+
 
     <main>
 
-        <section class="resumo">
+        <section class="destaques">
 
-            <div class="card">
-                <h2>Renda Total</h2>
-                <p th:text="${rendaTotal}">R$ 0,00</p>
+            <div class="card destaque receita">
+                <span>Renda total</span>
+                <strong th:text="${rendaTotal}">R$ 0,00</strong>
             </div>
 
-            <div class="card">
-                <h2>Gastos Totais</h2>
-                <p th:text="${gastosTotais}">R$ 0,00</p>
+            <div class="card destaque gasto">
+                <span>Gastos totais</span>
+                <strong th:text="${gastosTotais}">R$ 0,00</strong>
             </div>
 
-            <div class="card">
-                <h2>Total Guardado</h2>
-                <p th:text="${guardadoTotal}">R$ 0,00</p>
+            <div class="card destaque guardado">
+                <span>Total guardado</span>
+                <strong th:text="${guardadoTotal}">R$ 0,00</strong>
             </div>
 
-            <div class="card">
-                <h2>Saldo</h2>
-                <p th:text="${saldo}">R$ 0,00</p>
+            <div class="card destaque saldo">
+                <span>Saldo disponível</span>
+                <strong th:text="${saldo}">R$ 0,00</strong>
+            </div>
+
+        </section>
+
+
+        <section class="secao">
+
+            <div class="titulo-secao">
+                <h2>Rendas</h2>
+                <p>Quanto cada um recebeu.</p>
+            </div>
+
+            <div class="grid-duplo">
+
+                <div class="card pessoa">
+                    <div class="avatar">K</div>
+
+                    <div>
+                        <span>Kleber</span>
+                        <strong th:text="${rendaKleber}">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <div class="card pessoa">
+                    <div class="avatar">G</div>
+
+                    <div>
+                        <span>Giovanna</span>
+                        <strong th:text="${rendaGiovanna}">R$ 0,00</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="secao">
+
+            <div class="titulo-secao">
+                <h2>Gastos</h2>
+                <p>Despesas registradas por pessoa.</p>
+            </div>
+
+            <div class="grid-duplo">
+
+                <div class="card pessoa">
+                    <div class="avatar">K</div>
+
+                    <div>
+                        <span>Kleber</span>
+                        <strong th:text="${gastosKleber}">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <div class="card pessoa">
+                    <div class="avatar">G</div>
+
+                    <div>
+                        <span>Giovanna</span>
+                        <strong th:text="${gastosGiovanna}">R$ 0,00</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="secao">
+
+            <div class="titulo-secao">
+                <h2>Valores guardados</h2>
+                <p>Quanto cada um separou para os objetivos do casal.</p>
+            </div>
+
+            <div class="grid-duplo">
+
+                <div class="card pessoa">
+                    <div class="avatar">K</div>
+
+                    <div>
+                        <span>Kleber</span>
+                        <strong th:text="${guardadoKleber}">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <div class="card pessoa">
+                    <div class="avatar">G</div>
+
+                    <div>
+                        <span>Giovanna</span>
+                        <strong th:text="${guardadoGiovanna}">R$ 0,00</strong>
+                    </div>
+                </div>
+
             </div>
 
         </section>
