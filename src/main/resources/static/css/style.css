@@ -45,6 +45,12 @@ body {
     color: #7a8494;
 }
 
+.acoes-topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 
 /* BOTÕES */
 
@@ -63,10 +69,22 @@ body {
     transition: 0.2s;
 }
 
+.botao-sair {
+    background: white;
+    color: #374151;
+    border: 1px solid #d7dde6;
+    padding: 11px 17px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
 .botao-principal:hover,
 .botao:hover,
+.botao-sair:hover,
 .botao-mes:hover {
-    opacity: 0.85;
+    opacity: 0.82;
 }
 
 
@@ -124,7 +142,7 @@ body {
 }
 
 
-/* CARDS PRINCIPAIS */
+/* CARDS */
 
 .destaques {
     display: grid;
@@ -212,7 +230,7 @@ body {
 }
 
 
-/* CARDS DAS PESSOAS */
+/* PESSOAS */
 
 .pessoa {
     padding: 22px;
@@ -317,6 +335,81 @@ th {
 }
 
 
+/* LOGIN */
+
+.pagina-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card {
+    background: white;
+    padding: 38px;
+    border-radius: 18px;
+    border: 1px solid #e5eaf0;
+    box-shadow: 0 15px 45px rgba(30, 41, 59, 0.10);
+}
+
+.login-card h1 {
+    font-size: 29px;
+    margin-bottom: 8px;
+}
+
+.login-descricao {
+    color: #7a8494;
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+.botao-login {
+    width: 100%;
+    background: #1f2937;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.botao-login:hover {
+    opacity: 0.9;
+}
+
+.login-rodape {
+    text-align: center;
+    color: #a0a7b2;
+    font-size: 13px;
+    margin-top: 25px;
+}
+
+.mensagem {
+    padding: 11px 13px;
+    border-radius: 9px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.erro {
+    background: #fff0f0;
+    color: #b42318;
+}
+
+.sucesso {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+
 /* RESPONSIVIDADE */
 
 @media (max-width: 900px) {
@@ -338,13 +431,17 @@ th {
         align-items: flex-start;
     }
 
-    .topo h1 {
-        font-size: 27px;
+    .acoes-topo {
+        width: 100%;
     }
 
     .botao-principal {
-        width: 100%;
+        flex: 1;
         text-align: center;
+    }
+
+    .topo h1 {
+        font-size: 27px;
     }
 
     .destaques {
@@ -353,6 +450,10 @@ th {
 
     .grid-duplo {
         grid-template-columns: 1fr;
+    }
+
+    .login-card {
+        padding: 28px 22px;
     }
 
 }

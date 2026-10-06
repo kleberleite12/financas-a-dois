@@ -18,7 +18,10 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>Finanças a Dois</name>
-    <description>Aplicação web para gerenciamento financeiro compartilhado entre casais.</description>
+
+    <description>
+        Aplicação web para gerenciamento financeiro compartilhado entre casais.
+    </description>
 
     <properties>
         <java.version>21</java.version>
@@ -51,7 +54,13 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Facilidades durante o desenvolvimento -->
+        <!-- Segurança / Login -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Desenvolvimento -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -75,6 +84,7 @@
     </dependencies>
 
     <build>
+
         <plugins>
 
             <plugin>
@@ -83,6 +93,7 @@
             </plugin>
 
         </plugins>
+
     </build>
 
 </project>

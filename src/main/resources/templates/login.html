@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Entrar | Finanças a Dois</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+</head>
+
+<body class="pagina-login">
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <span class="marca">
+            FINANÇAS A DOIS
+        </span>
+
+        <h1>Bem-vindos 👋</h1>
+
+        <p class="login-descricao">
+            Acesse o controle financeiro compartilhado de vocês.
+        </p>
+
+        <div class="mensagem erro"
+             th:if="${param.error}">
+            Usuário ou senha incorretos.
+        </div>
+
+        <div class="mensagem sucesso"
+             th:if="${param.logout}">
+            Você saiu da sua conta.
+        </div>
+
+        <form th:action="@{/login}"
+              method="post">
+
+            <div class="campo">
+
+                <label for="username">
+                    Usuário
+                </label>
+
+                <input id="username"
+                       type="text"
+                       name="username"
+                       placeholder="Digite seu usuário"
+                       autocomplete="username"
+                       required>
+
+            </div>
+
+            <div class="campo">
+
+                <label for="password">
+                    Senha
+                </label>
+
+                <input id="password"
+                       type="password"
+                       name="password"
+                       placeholder="Digite sua senha"
+                       autocomplete="current-password"
+                       required>
+
+            </div>
+
+            <button class="botao-login"
+                    type="submit">
+                Entrar
+            </button>
+
+        </form>
+
+        <p class="login-rodape">
+            Kleber & Giovanna ❤️
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

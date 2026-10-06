@@ -37,10 +37,24 @@
 
         </div>
 
-        <a class="botao-principal"
-           th:href="@{/lancamentos}">
-            + Novo lançamento
-        </a>
+        <div class="acoes-topo">
+
+            <a class="botao-principal"
+               th:href="@{/lancamentos}">
+                + Novo lançamento
+            </a>
+
+            <form th:action="@{/logout}"
+                  method="post">
+
+                <button class="botao-sair"
+                        type="submit">
+                    Sair
+                </button>
+
+            </form>
+
+        </div>
 
     </header>
 
