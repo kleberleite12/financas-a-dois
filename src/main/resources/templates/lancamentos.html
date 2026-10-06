@@ -2,127 +2,196 @@
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lançamentos | Finanças a Dois</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>
+        Lançamentos | Finanças a Dois
+    </title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <header>
-        <h1>Lançamentos</h1>
-        <p>Cadastre e organize as movimentações financeiras.</p>
+    <header class="topo">
 
-        <nav>
-            <a class="botao" th:href="@{/}">Dashboard</a>
-        </nav>
+        <div>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+            <h1>
+                Lançamentos
+            </h1>
+
+            <p>
+                Movimentações financeiras do casal.
+            </p>
+
+        </div>
+
+        <a class="botao-principal"
+           th:href="@{/}">
+            Dashboard
+        </a>
+
     </header>
+
 
     <main>
 
         <section class="formulario">
 
-            <h2 th:text="${modoEdicao} ? 'Editar lançamento' : 'Novo lançamento'">
+            <h2 th:text="${modoEdicao}
+                    ? 'Editar lançamento'
+                    : 'Novo lançamento'">
+
                 Novo lançamento
+
             </h2>
+
+            <p>
+                Este lançamento será registrado como
+                <strong th:text="${nomeUsuario}">
+                    Usuário
+                </strong>.
+            </p>
+
+            <br>
+
 
             <form th:action="@{/lancamentos}"
                   th:object="${lancamento}"
                   method="post">
 
-                <input type="hidden" th:field="*{id}">
+                <input type="hidden"
+                       th:field="*{id}">
+
 
                 <div class="campo">
-                    <label>Descrição</label>
+
+                    <label>
+                        Descrição
+                    </label>
 
                     <input type="text"
                            th:field="*{descricao}"
                            required>
+
                 </div>
 
+
                 <div class="campo">
-                    <label>Valor</label>
+
+                    <label>
+                        Valor
+                    </label>
 
                     <input type="number"
                            step="0.01"
                            min="0"
                            th:field="*{valor}"
                            required>
+
                 </div>
 
+
                 <div class="campo">
-                    <label>Data</label>
+
+                    <label>
+                        Data
+                    </label>
 
                     <input type="date"
                            th:field="*{data}"
                            required>
+
                 </div>
 
+
                 <div class="campo">
-                    <label>Tipo</label>
 
-                    <select th:field="*{tipo}" required>
+                    <label>
+                        Tipo
+                    </label>
 
-                        <option value="">Selecione</option>
+                    <select th:field="*{tipo}"
+                            required>
 
-                        <option th:each="tipo : ${tipos}"
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option
+                                th:each="tipo : ${tipos}"
                                 th:value="${tipo}"
                                 th:text="${tipo}">
                         </option>
 
                     </select>
+
                 </div>
 
+
                 <div class="campo">
-                    <label>Categoria</label>
+
+                    <label>
+                        Categoria
+                    </label>
 
                     <input type="text"
                            th:field="*{categoria}"
                            required>
+
                 </div>
 
-                <div class="campo">
-                    <label>Responsável</label>
-
-                    <select th:field="*{responsavel}" required>
-
-                        <option value="">Selecione</option>
-                        <option value="Kleber">Kleber</option>
-                        <option value="Giovanna">Giovanna</option>
-
-                    </select>
-                </div>
 
                 <button class="botao"
                         type="submit"
-                        th:text="${modoEdicao} ? 'Salvar alterações' : 'Salvar lançamento'">
+                        th:text="${modoEdicao}
+                                ? 'Salvar alterações'
+                                : 'Salvar lançamento'">
+
                     Salvar lançamento
+
                 </button>
+
 
                 <a th:if="${modoEdicao}"
                    class="botao"
                    th:href="@{/lancamentos}">
+
                     Cancelar
+
                 </a>
 
             </form>
 
         </section>
 
+
         <section class="tabela-container">
 
-            <h2>Lançamentos cadastrados</h2>
+            <h2>
+                Lançamentos cadastrados
+            </h2>
+
 
             <table>
 
                 <thead>
 
                 <tr>
+
                     <th>Descrição</th>
                     <th>Valor</th>
                     <th>Data</th>
@@ -130,43 +199,68 @@
                     <th>Categoria</th>
                     <th>Responsável</th>
                     <th>Ações</th>
+
                 </tr>
 
                 </thead>
+
 
                 <tbody>
 
                 <tr th:each="item : ${lancamentos}">
 
-                    <td th:text="${item.descricao}"></td>
+                    <td th:text="${item.descricao}">
+                    </td>
 
-                    <td th:text="'R$ ' + ${item.valor}"></td>
+                    <td th:text="'R$ ' + ${item.valor}">
+                    </td>
 
-                    <td th:text="${item.data}"></td>
+                    <td th:text="${item.data}">
+                    </td>
 
-                    <td th:text="${item.tipo}"></td>
+                    <td th:text="${item.tipo}">
+                    </td>
 
-                    <td th:text="${item.categoria}"></td>
+                    <td th:text="${item.categoria}">
+                    </td>
 
-                    <td th:text="${item.responsavel}"></td>
+                    <td th:text="${item.responsavel}">
+                    </td>
+
 
                     <td>
 
-                        <a class="botao"
-                           th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
-                            Editar
-                        </a>
+                        <div th:if="${item.responsavel == nomeUsuario}">
 
-                        <form th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
-                              method="post"
-                              style="display: inline;"
-                              onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+                            <a class="botao"
+                               th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
 
-                            <button class="botao" type="submit">
-                                Excluir
-                            </button>
+                                Editar
 
-                        </form>
+                            </a>
+
+
+                            <form
+                                    th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
+                                    method="post"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+
+                                <button class="botao"
+                                        type="submit">
+
+                                    Excluir
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+
+                        <span th:if="${item.responsavel != nomeUsuario}">
+                            —
+                        </span>
 
                     </td>
 
@@ -183,4 +277,5 @@
 </div>
 
 </body>
+
 </html>
