@@ -110,11 +110,12 @@
                 <div class="campo">
 
                     <label>
-                        Data
+                        Mês e ano
                     </label>
 
-                    <input type="date"
-                           th:field="*{data}"
+                    <input type="month"
+                           name="periodoLancamento"
+                           th:value="${periodoLancamento}"
                            required>
 
                 </div>
@@ -136,7 +137,7 @@
                         <option
                                 th:each="tipo : ${tipos}"
                                 th:value="${tipo}"
-                                th:text="${tipo}">
+                                th:text="${tipo.descricao}">
                         </option>
 
                     </select>
@@ -196,7 +197,7 @@
                 <div class="campo">
 
                     <label>
-                        Mês
+                        Mês e ano
                     </label>
 
                     <input type="month"
@@ -248,7 +249,7 @@
                         <option
                                 th:each="tipo : ${tipos}"
                                 th:value="${tipo}"
-                                th:text="${tipo}"
+                                th:text="${tipo.descricao}"
                                 th:selected="${tipoSelecionado == tipo}">
                         </option>
 
@@ -296,6 +297,7 @@
                 <strong th:text="${quantidadeResultados}">
                     0
                 </strong>
+
                 lançamento(s) encontrado(s).
             </p>
 
@@ -310,7 +312,7 @@
 
                     <th>Descrição</th>
                     <th>Valor</th>
-                    <th>Data</th>
+                    <th>Mês/Ano</th>
                     <th>Tipo</th>
                     <th>Categoria</th>
                     <th>Responsável</th>
@@ -331,10 +333,10 @@
                     <td th:text="'R$ ' + ${item.valor}">
                     </td>
 
-                    <td th:text="${item.data}">
+                    <td th:text="${#temporals.format(item.data, 'MM/yyyy')}">
                     </td>
 
-                    <td th:text="${item.tipo}">
+                    <td th:text="${item.tipo.descricao}">
                     </td>
 
                     <td th:text="${item.categoria}">
@@ -350,9 +352,7 @@
 
                             <a class="botao"
                                th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
-
                                 Editar
-
                             </a>
 
 
@@ -364,9 +364,7 @@
 
                                 <button class="botao"
                                         type="submit">
-
                                     Excluir
-
                                 </button>
 
                             </form>

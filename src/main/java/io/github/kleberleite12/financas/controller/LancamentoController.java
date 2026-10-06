@@ -88,21 +88,32 @@ public class LancamentoController {
                                 )
                         );
 
-        verificarDono(lancamento, nomeUsuario);
+        verificarDono(
+                lancamento,
+                nomeUsuario
+        );
 
-        // Converte registros antigos ao editar
         if (lancamento.getTipo() == TipoLancamento.RECEITA) {
-            lancamento.setTipo(TipoLancamento.RENDA_PRINCIPAL);
+            lancamento.setTipo(
+                    TipoLancamento.RENDA_PRINCIPAL
+            );
         }
 
         if (lancamento.getTipo() == TipoLancamento.GASTO) {
-            lancamento.setTipo(TipoLancamento.CARTAO_CREDITO);
+            lancamento.setTipo(
+                    TipoLancamento.CARTAO_CREDITO
+            );
         }
 
         prepararPagina(
                 model,
                 lancamento,
-                buscarLancamentosFiltrados(null, null, null, null),
+                buscarLancamentosFiltrados(
+                        null,
+                        null,
+                        null,
+                        null
+                ),
                 nomeUsuario,
                 true,
                 null,
@@ -117,19 +128,40 @@ public class LancamentoController {
     @PostMapping("/lancamentos")
     public String salvar(
             Lancamento lancamento,
+            @RequestParam String periodoLancamento,
             Authentication authentication) {
 
         String nomeUsuario =
                 formatarNomeUsuario(authentication.getName());
 
+        try {
+
+            YearMonth periodo =
+                    YearMonth.parse(periodoLancamento);
+
+            lancamento.setData(
+                    periodo.atDay(1)
+            );
+
+        } catch (Exception erro) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Mês e ano inválidos."
+            );
+        }
+
         if (lancamento.getId() == null) {
 
-            lancamento.setResponsavel(nomeUsuario);
+            lancamento.setResponsavel(
+                    nomeUsuario
+            );
 
         } else {
 
             Lancamento existente =
-                    lancamentoRepository.findById(lancamento.getId())
+                    lancamentoRepository
+                            .findById(lancamento.getId())
                             .orElseThrow(() ->
                                     new ResponseStatusException(
                                             HttpStatus.NOT_FOUND,
@@ -137,14 +169,19 @@ public class LancamentoController {
                                     )
                             );
 
-            verificarDono(existente, nomeUsuario);
+            verificarDono(
+                    existente,
+                    nomeUsuario
+            );
 
             lancamento.setResponsavel(
                     existente.getResponsavel()
             );
         }
 
-        lancamentoRepository.save(lancamento);
+        lancamentoRepository.save(
+                lancamento
+        );
 
         return "redirect:/lancamentos";
     }
@@ -166,9 +203,14 @@ public class LancamentoController {
                                 )
                         );
 
-        verificarDono(lancamento, nomeUsuario);
+        verificarDono(
+                lancamento,
+                nomeUsuario
+        );
 
-        lancamentoRepository.delete(lancamento);
+        lancamentoRepository.delete(
+                lancamento
+        );
 
         return "redirect:/lancamentos";
     }
@@ -190,7 +232,10 @@ public class LancamentoController {
         return lancamentos.stream()
 
                 .filter(lancamento ->
-                        filtrarPeriodo(lancamento, periodo)
+                        filtrarPeriodo(
+                                lancamento,
+                                periodo
+                        )
                 )
 
                 .filter(lancamento ->
@@ -206,7 +251,10 @@ public class LancamentoController {
                 )
 
                 .filter(lancamento ->
-                        filtrarBusca(lancamento, busca)
+                        filtrarBusca(
+                                lancamento,
+                                busca
+                        )
                 )
 
                 .toList();
@@ -226,9 +274,12 @@ public class LancamentoController {
                     YearMonth.parse(periodo);
 
             YearMonth periodoLancamento =
-                    YearMonth.from(lancamento.getData());
+                    YearMonth.from(
+                            lancamento.getData()
+                    );
 
-            return periodoSelecionado.equals(periodoLancamento);
+            return periodoSelecionado
+                    .equals(periodoLancamento);
 
         } catch (Exception erro) {
 
@@ -245,7 +296,8 @@ public class LancamentoController {
         }
 
         String textoBusca =
-                busca.trim().toLowerCase(Locale.ROOT);
+                busca.trim()
+                        .toLowerCase(Locale.ROOT);
 
         String descricao =
                 lancamento.getDescricao() == null
@@ -274,11 +326,50 @@ public class LancamentoController {
             TipoLancamento tipo,
             String busca) {
 
-        model.addAttribute("lancamentos", lancamentos);
-        model.addAttribute("lancamento", lancamento);
-        model.addAttribute("tipos", TIPOS_ATIVOS);
-        model.addAttribute("modoEdicao", modoEdicao);
-        model.addAttribute("nomeUsuario", nomeUsuario);
+        String periodoLancamento;
+
+        if (lancamento.getData() != null) {
+
+            periodoLancamento =
+                    YearMonth.from(
+                            lancamento.getData()
+                    ).toString();
+
+        } else {
+
+            periodoLancamento =
+                    YearMonth.now().toString();
+        }
+
+        model.addAttribute(
+                "lancamentos",
+                lancamentos
+        );
+
+        model.addAttribute(
+                "lancamento",
+                lancamento
+        );
+
+        model.addAttribute(
+                "tipos",
+                TIPOS_ATIVOS
+        );
+
+        model.addAttribute(
+                "modoEdicao",
+                modoEdicao
+        );
+
+        model.addAttribute(
+                "nomeUsuario",
+                nomeUsuario
+        );
+
+        model.addAttribute(
+                "periodoLancamento",
+                periodoLancamento
+        );
 
         model.addAttribute(
                 "periodoSelecionado",
@@ -310,7 +401,8 @@ public class LancamentoController {
             Lancamento lancamento,
             String nomeUsuario) {
 
-        if (!lancamento.getResponsavel()
+        if (!lancamento
+                .getResponsavel()
                 .equalsIgnoreCase(nomeUsuario)) {
 
             throw new ResponseStatusException(
@@ -320,7 +412,8 @@ public class LancamentoController {
         }
     }
 
-    private String formatarNomeUsuario(String usuario) {
+    private String formatarNomeUsuario(
+            String usuario) {
 
         if (usuario == null || usuario.isBlank()) {
             return "Usuário";
