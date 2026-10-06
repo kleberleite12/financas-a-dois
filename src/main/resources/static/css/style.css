@@ -29,6 +29,28 @@ header p {
     color: #666;
 }
 
+nav {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.botao {
+    display: inline-block;
+    padding: 10px 18px;
+    background-color: #222;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.botao:hover {
+    opacity: 0.85;
+}
+
 .resumo {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -53,6 +75,65 @@ header p {
     font-weight: bold;
 }
 
+.formulario {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 35px;
+}
+
+.formulario h2 {
+    margin-bottom: 20px;
+}
+
+.campo {
+    margin-bottom: 15px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+.tabela-container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+}
+
+.tabela-container h2 {
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f6f8;
+}
+
 @media (max-width: 800px) {
     .resumo {
         grid-template-columns: 1fr 1fr;
@@ -62,5 +143,9 @@ header p {
 @media (max-width: 500px) {
     .resumo {
         grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 25px 15px;
     }
 }
