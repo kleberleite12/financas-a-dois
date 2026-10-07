@@ -102,7 +102,7 @@
     <main>
 
 
-        <!-- PAINEL PRINCIPAL -->
+        <!-- PAINEL DO USUÁRIO LOGADO -->
 
         <section class="painel-mes">
 
@@ -273,7 +273,13 @@
                 </a>
 
 
-                <a class="card destaque guardado card-link"
+                <!--
+                Guardado do Kleber aparece aqui somente
+                se a Giovanna estiver logada.
+                -->
+
+                <a th:if="${nomeUsuario != 'Kleber'}"
+                   class="card destaque guardado card-link"
                    th:href="@{/detalhes(
                         periodo=${periodoAtual},
                         responsavel='Kleber',
@@ -289,7 +295,13 @@
                 </a>
 
 
-                <div class="card destaque saldo">
+                <!--
+                Disponível do Kleber aparece aqui somente
+                se a Giovanna estiver logada.
+                -->
+
+                <div th:if="${nomeUsuario != 'Kleber'}"
+                     class="card destaque saldo">
 
                     <span>
                         Disponível agora
@@ -431,7 +443,13 @@
                 </a>
 
 
-                <a class="card destaque guardado card-link"
+                <!--
+                Guardado da Giovanna aparece aqui somente
+                se o Kleber estiver logado.
+                -->
+
+                <a th:if="${nomeUsuario != 'Giovanna'}"
+                   class="card destaque guardado card-link"
                    th:href="@{/detalhes(
                         periodo=${periodoAtual},
                         responsavel='Giovanna',
@@ -447,7 +465,13 @@
                 </a>
 
 
-                <div class="card destaque saldo">
+                <!--
+                Disponível da Giovanna aparece aqui somente
+                se o Kleber estiver logado.
+                -->
+
+                <div th:if="${nomeUsuario != 'Giovanna'}"
+                     class="card destaque saldo">
 
                     <span>
                         Disponível agora
