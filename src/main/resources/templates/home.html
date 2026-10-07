@@ -37,8 +37,8 @@
             </h1>
 
             <p>
-                Cada um cuidando das próprias finanças,
-                juntos no mesmo aplicativo.
+                Acompanhe quanto ainda está disponível
+                durante o mês.
             </p>
 
         </div>
@@ -102,6 +102,93 @@
     <main>
 
 
+        <!-- PAINEL PRINCIPAL -->
+
+        <section class="painel-mes">
+
+            <div class="painel-mes-titulo">
+
+                <div>
+
+                    <span class="marca">
+                        SEU MÊS
+                    </span>
+
+                    <h2>
+                        Quanto ainda posso gastar?
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="painel-mes-grid">
+
+                <div class="resumo-mes-item">
+
+                    <span>
+                        Receitas do mês
+                    </span>
+
+                    <strong th:text="${minhasReceitas}">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumo-mes-item">
+
+                    <span>
+                        Gastos até agora
+                    </span>
+
+                    <strong th:text="${meusGastos}">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumo-mes-item">
+
+                    <span>
+                        Guardado no mês
+                    </span>
+
+                    <strong th:text="${meuGuardadoMes}">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+
+                <div class="disponivel-agora"
+                     th:classappend="${disponivelNegativo}
+                     ? ' disponivel-negativo'
+                     : ''">
+
+                    <span>
+                        DISPONÍVEL AGORA
+                    </span>
+
+                    <strong th:text="${meuDisponivelAgora}">
+                        R$ 0,00
+                    </strong>
+
+                    <p>
+                        Este é o valor que ainda resta
+                        considerando tudo que você já lançou.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
         <!-- KLEBER -->
 
         <section class="secao">
@@ -121,18 +208,29 @@
 
             <div class="destaques">
 
-                <div class="card destaque receita">
 
-                    <span>Renda principal</span>
+                <a class="card destaque receita card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Kleber',
+                        tipo='RENDA_PRINCIPAL'
+                   )}">
+
+                    <span>Salário</span>
 
                     <strong th:text="${kleberRendaPrincipal}">
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque receita">
+                <a class="card destaque receita card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Kleber',
+                        tipo='RENDA_EXTRA'
+                   )}">
 
                     <span>Renda extra</span>
 
@@ -140,10 +238,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque gasto">
+                <a class="card destaque gasto card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Kleber',
+                        tipo='CARTAO_CREDITO'
+                   )}">
 
                     <span>Cartão de crédito</span>
 
@@ -151,10 +254,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque gasto">
+                <a class="card destaque gasto card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Kleber',
+                        tipo='OUTRO_GASTO'
+                   )}">
 
                     <span>Outros gastos</span>
 
@@ -162,10 +270,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque guardado">
+                <a class="card destaque guardado card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Kleber',
+                        tipo='GUARDADO'
+                   )}">
 
                     <span>Guardado no mês</span>
 
@@ -173,12 +286,14 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
                 <div class="card destaque saldo">
 
-                    <span>Saldo disponível</span>
+                    <span>
+                        Disponível agora
+                    </span>
 
                     <strong th:text="${kleberSaldo}">
                         R$ 0,00
@@ -216,10 +331,13 @@
                     </progress>
 
                     <p>
+
                         <strong th:text="${kleberPercentualMeta} + '%'">
                             0%
                         </strong>
+
                         concluído
+
                     </p>
 
                 </div>
@@ -248,18 +366,29 @@
 
             <div class="destaques">
 
-                <div class="card destaque receita">
 
-                    <span>Renda principal</span>
+                <a class="card destaque receita card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Giovanna',
+                        tipo='RENDA_PRINCIPAL'
+                   )}">
+
+                    <span>Salário</span>
 
                     <strong th:text="${giovannaRendaPrincipal}">
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque receita">
+                <a class="card destaque receita card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Giovanna',
+                        tipo='RENDA_EXTRA'
+                   )}">
 
                     <span>Renda extra</span>
 
@@ -267,10 +396,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque gasto">
+                <a class="card destaque gasto card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Giovanna',
+                        tipo='CARTAO_CREDITO'
+                   )}">
 
                     <span>Cartão de crédito</span>
 
@@ -278,10 +412,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque gasto">
+                <a class="card destaque gasto card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Giovanna',
+                        tipo='OUTRO_GASTO'
+                   )}">
 
                     <span>Outros gastos</span>
 
@@ -289,10 +428,15 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
-                <div class="card destaque guardado">
+                <a class="card destaque guardado card-link"
+                   th:href="@{/detalhes(
+                        periodo=${periodoAtual},
+                        responsavel='Giovanna',
+                        tipo='GUARDADO'
+                   )}">
 
                     <span>Guardado no mês</span>
 
@@ -300,12 +444,14 @@
                         R$ 0,00
                     </strong>
 
-                </div>
+                </a>
 
 
                 <div class="card destaque saldo">
 
-                    <span>Saldo disponível</span>
+                    <span>
+                        Disponível agora
+                    </span>
 
                     <strong th:text="${giovannaSaldo}">
                         R$ 0,00
@@ -343,10 +489,13 @@
                     </progress>
 
                     <p>
+
                         <strong th:text="${giovannaPercentualMeta} + '%'">
                             0%
                         </strong>
+
                         concluído
+
                     </p>
 
                 </div>

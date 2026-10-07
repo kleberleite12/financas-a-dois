@@ -31,7 +31,9 @@ public class LancamentoController {
             TipoLancamento.GUARDADO
     );
 
-    public LancamentoController(LancamentoRepository lancamentoRepository) {
+    public LancamentoController(
+            LancamentoRepository lancamentoRepository) {
+
         this.lancamentoRepository = lancamentoRepository;
     }
 
@@ -45,7 +47,9 @@ public class LancamentoController {
             Authentication authentication) {
 
         String nomeUsuario =
-                formatarNomeUsuario(authentication.getName());
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
 
         List<Lancamento> lancamentos =
                 buscarLancamentosFiltrados(
@@ -77,10 +81,13 @@ public class LancamentoController {
             Authentication authentication) {
 
         String nomeUsuario =
-                formatarNomeUsuario(authentication.getName());
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
 
         Lancamento lancamento =
-                lancamentoRepository.findById(id)
+                lancamentoRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResponseStatusException(
                                         HttpStatus.NOT_FOUND,
@@ -93,13 +100,17 @@ public class LancamentoController {
                 nomeUsuario
         );
 
-        if (lancamento.getTipo() == TipoLancamento.RECEITA) {
+        if (lancamento.getTipo()
+                == TipoLancamento.RECEITA) {
+
             lancamento.setTipo(
                     TipoLancamento.RENDA_PRINCIPAL
             );
         }
 
-        if (lancamento.getTipo() == TipoLancamento.GASTO) {
+        if (lancamento.getTipo()
+                == TipoLancamento.GASTO) {
+
             lancamento.setTipo(
                     TipoLancamento.CARTAO_CREDITO
             );
@@ -132,12 +143,16 @@ public class LancamentoController {
             Authentication authentication) {
 
         String nomeUsuario =
-                formatarNomeUsuario(authentication.getName());
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
 
         try {
 
             YearMonth periodo =
-                    YearMonth.parse(periodoLancamento);
+                    YearMonth.parse(
+                            periodoLancamento
+                    );
 
             lancamento.setData(
                     periodo.atDay(1)
@@ -151,6 +166,10 @@ public class LancamentoController {
             );
         }
 
+        preencherCamposOpcionais(
+                lancamento
+        );
+
         if (lancamento.getId() == null) {
 
             lancamento.setResponsavel(
@@ -161,7 +180,9 @@ public class LancamentoController {
 
             Lancamento existente =
                     lancamentoRepository
-                            .findById(lancamento.getId())
+                            .findById(
+                                    lancamento.getId()
+                            )
                             .orElseThrow(() ->
                                     new ResponseStatusException(
                                             HttpStatus.NOT_FOUND,
@@ -192,10 +213,13 @@ public class LancamentoController {
             Authentication authentication) {
 
         String nomeUsuario =
-                formatarNomeUsuario(authentication.getName());
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
 
         Lancamento lancamento =
-                lancamentoRepository.findById(id)
+                lancamentoRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResponseStatusException(
                                         HttpStatus.NOT_FOUND,
@@ -213,6 +237,26 @@ public class LancamentoController {
         );
 
         return "redirect:/lancamentos";
+    }
+
+    private void preencherCamposOpcionais(
+            Lancamento lancamento) {
+
+        if (lancamento.getDescricao() == null
+                || lancamento.getDescricao().isBlank()) {
+
+            lancamento.setDescricao(
+                    lancamento.getTipo().getDescricao()
+            );
+        }
+
+        if (lancamento.getCategoria() == null
+                || lancamento.getCategoria().isBlank()) {
+
+            lancamento.setCategoria(
+                    lancamento.getTipo().getDescricao()
+            );
+        }
     }
 
     private List<Lancamento> buscarLancamentosFiltrados(
@@ -241,13 +285,18 @@ public class LancamentoController {
                 .filter(lancamento ->
                         responsavel == null
                                 || responsavel.isBlank()
-                                || lancamento.getResponsavel()
-                                .equalsIgnoreCase(responsavel)
+                                || lancamento
+                                .getResponsavel()
+                                .equalsIgnoreCase(
+                                        responsavel
+                                )
                 )
 
                 .filter(lancamento ->
-                        tipo == null
-                                || lancamento.getTipo() == tipo
+                        tipoCorresponde(
+                                lancamento.getTipo(),
+                                tipo
+                        )
                 )
 
                 .filter(lancamento ->
@@ -260,18 +309,52 @@ public class LancamentoController {
                 .toList();
     }
 
+    private boolean tipoCorresponde(
+            TipoLancamento tipoLancamento,
+            TipoLancamento tipoFiltro) {
+
+        if (tipoFiltro == null) {
+            return true;
+        }
+
+        if (tipoFiltro
+                == TipoLancamento.RENDA_PRINCIPAL) {
+
+            return tipoLancamento
+                    == TipoLancamento.RENDA_PRINCIPAL
+                    || tipoLancamento
+                    == TipoLancamento.RECEITA;
+        }
+
+        if (tipoFiltro
+                == TipoLancamento.CARTAO_CREDITO) {
+
+            return tipoLancamento
+                    == TipoLancamento.CARTAO_CREDITO
+                    || tipoLancamento
+                    == TipoLancamento.GASTO;
+        }
+
+        return tipoLancamento
+                == tipoFiltro;
+    }
+
     private boolean filtrarPeriodo(
             Lancamento lancamento,
             String periodo) {
 
-        if (periodo == null || periodo.isBlank()) {
+        if (periodo == null
+                || periodo.isBlank()) {
+
             return true;
         }
 
         try {
 
             YearMonth periodoSelecionado =
-                    YearMonth.parse(periodo);
+                    YearMonth.parse(
+                            periodo
+                    );
 
             YearMonth periodoLancamento =
                     YearMonth.from(
@@ -279,7 +362,9 @@ public class LancamentoController {
                     );
 
             return periodoSelecionado
-                    .equals(periodoLancamento);
+                    .equals(
+                            periodoLancamento
+                    );
 
         } catch (Exception erro) {
 
@@ -291,28 +376,42 @@ public class LancamentoController {
             Lancamento lancamento,
             String busca) {
 
-        if (busca == null || busca.isBlank()) {
+        if (busca == null
+                || busca.isBlank()) {
+
             return true;
         }
 
         String textoBusca =
                 busca.trim()
-                        .toLowerCase(Locale.ROOT);
+                        .toLowerCase(
+                                Locale.ROOT
+                        );
 
         String descricao =
                 lancamento.getDescricao() == null
                         ? ""
-                        : lancamento.getDescricao()
-                        .toLowerCase(Locale.ROOT);
+                        : lancamento
+                        .getDescricao()
+                        .toLowerCase(
+                                Locale.ROOT
+                        );
 
         String categoria =
                 lancamento.getCategoria() == null
                         ? ""
-                        : lancamento.getCategoria()
-                        .toLowerCase(Locale.ROOT);
+                        : lancamento
+                        .getCategoria()
+                        .toLowerCase(
+                                Locale.ROOT
+                        );
 
-        return descricao.contains(textoBusca)
-                || categoria.contains(textoBusca);
+        return descricao.contains(
+                textoBusca
+        )
+                || categoria.contains(
+                textoBusca
+        );
     }
 
     private void prepararPagina(
@@ -338,7 +437,8 @@ public class LancamentoController {
         } else {
 
             periodoLancamento =
-                    YearMonth.now().toString();
+                    YearMonth.now()
+                            .toString();
         }
 
         model.addAttribute(
@@ -403,7 +503,9 @@ public class LancamentoController {
 
         if (!lancamento
                 .getResponsavel()
-                .equalsIgnoreCase(nomeUsuario)) {
+                .equalsIgnoreCase(
+                        nomeUsuario
+                )) {
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -415,11 +517,17 @@ public class LancamentoController {
     private String formatarNomeUsuario(
             String usuario) {
 
-        if (usuario == null || usuario.isBlank()) {
+        if (usuario == null
+                || usuario.isBlank()) {
+
             return "Usuário";
         }
 
-        return usuario.substring(0, 1).toUpperCase()
-                + usuario.substring(1).toLowerCase();
+        return usuario
+                .substring(0, 1)
+                .toUpperCase()
+                + usuario
+                .substring(1)
+                .toLowerCase();
     }
 }

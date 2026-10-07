@@ -81,21 +81,7 @@
                 <div class="campo">
 
                     <label>
-                        Descrição
-                    </label>
-
-                    <input type="text"
-                           th:field="*{descricao}"
-                           placeholder="Ex.: Supermercado"
-                           required>
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Valor
+                        Valor *
                     </label>
 
                     <input type="number"
@@ -110,7 +96,7 @@
                 <div class="campo">
 
                     <label>
-                        Mês e ano
+                        Mês e ano *
                     </label>
 
                     <input type="month"
@@ -124,7 +110,7 @@
                 <div class="campo">
 
                     <label>
-                        Tipo
+                        Tipo *
                     </label>
 
                     <select th:field="*{tipo}"
@@ -148,13 +134,27 @@
                 <div class="campo">
 
                     <label>
+                        Descrição
+                        <small>(opcional)</small>
+                    </label>
+
+                    <input type="text"
+                           th:field="*{descricao}"
+                           placeholder="Ex.: Carrefour, Freelance...">
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
                         Categoria
+                        <small>(opcional)</small>
                     </label>
 
                     <input type="text"
                            th:field="*{categoria}"
-                           placeholder="Ex.: Mercado"
-                           required>
+                           placeholder="Ex.: Mercado, Restaurante...">
 
                 </div>
 

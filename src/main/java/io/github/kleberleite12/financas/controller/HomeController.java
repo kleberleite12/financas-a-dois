@@ -26,11 +26,8 @@ public class HomeController {
 
     private final LancamentoRepository lancamentoRepository;
 
-    public HomeController(
-            LancamentoRepository lancamentoRepository) {
-
-        this.lancamentoRepository =
-                lancamentoRepository;
+    public HomeController(LancamentoRepository lancamentoRepository) {
+        this.lancamentoRepository = lancamentoRepository;
     }
 
     @GetMapping("/")
@@ -41,9 +38,7 @@ public class HomeController {
             Model model) {
 
         String nomeUsuario =
-                formatarNomeUsuario(
-                        authentication.getName()
-                );
+                formatarNomeUsuario(authentication.getName());
 
         YearMonth periodo;
 
@@ -52,33 +47,24 @@ public class HomeController {
                 && mes >= 1
                 && mes <= 12) {
 
-            periodo = YearMonth.of(
-                    ano,
-                    mes
-            );
+            periodo = YearMonth.of(ano, mes);
 
         } else {
 
             periodo = YearMonth.now();
         }
 
-        LocalDate inicioMes =
-                periodo.atDay(1);
-
-        LocalDate fimMes =
-                periodo.atEndOfMonth();
-
+        LocalDate inicioMes = periodo.atDay(1);
+        LocalDate fimMes = periodo.atEndOfMonth();
 
         List<Lancamento> lancamentosMes =
-                lancamentoRepository
-                        .findByDataBetween(
-                                inicioMes,
-                                fimMes
-                        );
+                lancamentoRepository.findByDataBetween(
+                        inicioMes,
+                        fimMes
+                );
 
         List<Lancamento> todosLancamentos =
                 lancamentoRepository.findAll();
-
 
         DadosFinanceiros kleber =
                 calcularDados(
@@ -94,13 +80,19 @@ public class HomeController {
                         "Giovanna"
                 );
 
+        DadosFinanceiros usuarioAtual;
+
+        if (nomeUsuario.equalsIgnoreCase("Giovanna")) {
+            usuarioAtual = giovanna;
+        } else {
+            usuarioAtual = kleber;
+        }
 
         YearMonth periodoAnterior =
                 periodo.minusMonths(1);
 
         YearMonth proximoPeriodo =
                 periodo.plusMonths(1);
-
 
         String nomeMes =
                 periodo.getMonth()
@@ -112,7 +104,6 @@ public class HomeController {
         nomeMes =
                 nomeMes.substring(0, 1).toUpperCase()
                         + nomeMes.substring(1);
-
 
         model.addAttribute(
                 "nomeUsuario",
@@ -127,6 +118,11 @@ public class HomeController {
         model.addAttribute(
                 "ano",
                 periodo.getYear()
+        );
+
+        model.addAttribute(
+                "periodoAtual",
+                periodo.toString()
         );
 
         model.addAttribute(
@@ -149,7 +145,6 @@ public class HomeController {
                 proximoPeriodo.getMonthValue()
         );
 
-
         adicionarDadosPessoa(
                 model,
                 "kleber",
@@ -162,6 +157,43 @@ public class HomeController {
                 giovanna
         );
 
+        BigDecimal minhasReceitas =
+                usuarioAtual.rendaPrincipal()
+                        .add(usuarioAtual.rendaExtra());
+
+        BigDecimal meusGastos =
+                usuarioAtual.cartaoCredito()
+                        .add(usuarioAtual.outrosGastos());
+
+        model.addAttribute(
+                "minhasReceitas",
+                formatarMoeda(minhasReceitas)
+        );
+
+        model.addAttribute(
+                "meusGastos",
+                formatarMoeda(meusGastos)
+        );
+
+        model.addAttribute(
+                "meuGuardadoMes",
+                formatarMoeda(
+                        usuarioAtual.guardadoMes()
+                )
+        );
+
+        model.addAttribute(
+                "meuDisponivelAgora",
+                formatarMoeda(
+                        usuarioAtual.saldo()
+                )
+        );
+
+        model.addAttribute(
+                "disponivelNegativo",
+                usuarioAtual.saldo()
+                        .compareTo(BigDecimal.ZERO) < 0
+        );
 
         model.addAttribute(
                 "metaIndividual",
@@ -220,14 +252,12 @@ public class HomeController {
                         .subtract(outrosGastos)
                         .subtract(guardadoMes);
 
-
         BigDecimal guardadoAcumulado =
                 somar(
                         todosLancamentos,
                         responsavel,
                         TipoLancamento.GUARDADO
                 );
-
 
         BigDecimal percentualMeta =
                 guardadoAcumulado
@@ -244,7 +274,6 @@ public class HomeController {
                 percentualMeta.min(
                         new BigDecimal("100")
                 );
-
 
         return new DadosFinanceiros(
                 rendaPrincipal,

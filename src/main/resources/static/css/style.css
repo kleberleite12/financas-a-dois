@@ -142,13 +142,89 @@ body {
 }
 
 
+/* PAINEL DO MÊS */
+
+.painel-mes {
+    background: #18212f;
+    color: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 50px;
+    box-shadow: 0 12px 30px rgba(24, 33, 47, 0.15);
+}
+
+.painel-mes .marca {
+    color: #aeb8c7;
+}
+
+.painel-mes-titulo h2 {
+    font-size: 25px;
+}
+
+.painel-mes-grid {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 1.4fr;
+    gap: 14px;
+}
+
+.resumo-mes-item {
+    padding: 20px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.resumo-mes-item span {
+    display: block;
+    color: #cbd2dc;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.resumo-mes-item strong {
+    font-size: 20px;
+}
+
+.disponivel-agora {
+    padding: 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #18212f;
+}
+
+.disponivel-agora span {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.disponivel-agora strong {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 7px;
+}
+
+.disponivel-agora p {
+    color: #727d8c;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.disponivel-negativo {
+    background: #fff0f0;
+    color: #b42318;
+}
+
+
 /* CARDS */
 
 .destaques {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 18px;
-    margin-bottom: 50px;
+    margin-bottom: 25px;
 }
 
 .card {
@@ -156,6 +232,19 @@ body {
     border: 1px solid #e9edf3;
     border-radius: 16px;
     box-shadow: 0 5px 18px rgba(30, 41, 59, 0.06);
+}
+
+.card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(30, 41, 59, 0.12);
 }
 
 .destaque {
@@ -206,7 +295,7 @@ body {
 /* SEÇÕES */
 
 .secao {
-    margin-bottom: 42px;
+    margin-bottom: 50px;
 }
 
 .titulo-secao {
@@ -223,12 +312,6 @@ body {
     font-size: 14px;
 }
 
-.grid-duplo {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-}
-
 
 /* PESSOAS */
 
@@ -237,19 +320,6 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-}
-
-.avatar {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    border-radius: 50%;
-    background: #eef1f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 17px;
 }
 
 .pessoa span {
@@ -381,10 +451,6 @@ th {
     cursor: pointer;
 }
 
-.botao-login:hover {
-    opacity: 0.9;
-}
-
 .login-rodape {
     text-align: center;
     color: #a0a7b2;
@@ -392,27 +458,14 @@ th {
     margin-top: 25px;
 }
 
-.mensagem {
-    padding: 11px 13px;
-    border-radius: 9px;
-    margin-bottom: 18px;
-    font-size: 14px;
-}
-
-.erro {
-    background: #fff0f0;
-    color: #b42318;
-}
-
-.sucesso {
-    background: #ecfdf3;
-    color: #067647;
-}
-
 
 /* RESPONSIVIDADE */
 
 @media (max-width: 900px) {
+
+    .painel-mes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
     .destaques {
         grid-template-columns: repeat(2, 1fr);
@@ -444,16 +497,12 @@ th {
         font-size: 27px;
     }
 
+    .painel-mes-grid {
+        grid-template-columns: 1fr;
+    }
+
     .destaques {
         grid-template-columns: 1fr;
-    }
-
-    .grid-duplo {
-        grid-template-columns: 1fr;
-    }
-
-    .login-card {
-        padding: 28px 22px;
     }
 
 }

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Detalhes | Finanças a Dois</title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="topo">
+
+        <div>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+            <h1 th:text="${titulo}">
+                Detalhes
+            </h1>
+
+            <p>
+                <span th:text="${responsavel}">
+                    Usuário
+                </span>
+
+                •
+
+                <span th:text="${nomeMes}">
+                    Mês
+                </span>
+
+                <span th:text="${ano}">
+                    2026
+                </span>
+            </p>
+
+        </div>
+
+
+        <a class="botao-principal"
+           th:href="@{/(
+                ano=${anoVoltar},
+                mes=${mesVoltar}
+           )}">
+
+            ← Voltar ao Dashboard
+
+        </a>
+
+    </header>
+
+
+    <main>
+
+        <section class="destaques">
+
+            <div class="card destaque saldo">
+
+                <span>
+                    Total
+                </span>
+
+                <strong th:text="${total}">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <section class="tabela-container">
+
+            <h2 th:text="${titulo}">
+                Lançamentos
+            </h2>
+
+
+            <table th:if="${!lancamentos.isEmpty()}">
+
+                <thead>
+
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                <tr th:each="item : ${lancamentos}">
+
+                    <td th:text="${item.descricao}">
+                    </td>
+
+                    <td th:text="${item.categoria}">
+                    </td>
+
+                    <td th:text="'R$ ' + ${item.valor}">
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+            <p th:if="${lancamentos.isEmpty()}">
+                Nenhum lançamento encontrado neste período.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
