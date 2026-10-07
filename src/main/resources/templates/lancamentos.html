@@ -22,6 +22,11 @@
 
 <div class="container">
 
+
+    <!-- ====================================== -->
+    <!-- TOPO -->
+    <!-- ====================================== -->
+
     <header class="topo">
 
         <div>
@@ -37,10 +42,13 @@
 
 
             <h1 th:if="${visualizandoOutro}">
+
                 Lançamentos de
+
                 <span th:text="${nomeOutroUsuario}">
                     Usuário
                 </span>
+
             </h1>
 
 
@@ -64,7 +72,9 @@
     </header>
 
 
+    <!-- ====================================== -->
     <!-- NAVEGAÇÃO -->
+    <!-- ====================================== -->
 
     <nav class="acoes-topo"
          style="margin-bottom: 30px;">
@@ -105,87 +115,433 @@
     <main>
 
 
-        <!-- QUANTIDADE TOTAL -->
+        <!-- ====================================== -->
+        <!-- VISÃO FILTRADA -->
+        <!-- ====================================== -->
 
-        <section class="secao">
+        <section th:if="${filtroAtivo}"
+                 class="tabela-container">
 
-            <div class="titulo-secao">
 
-                <h2 th:if="${!visualizandoOutro}">
-                    Meus lançamentos
-                </h2>
+            <a th:if="${!visualizandoOutro}"
+               class="botao"
+               th:href="@{/lancamentos}"
+               style="margin-bottom: 25px;">
 
-                <h2 th:if="${visualizandoOutro}">
+                ← VOLTAR PARA TODOS
 
-                    Lançamentos de
+            </a>
 
-                    <span th:text="${nomeOutroUsuario}">
+
+            <a th:if="${visualizandoOutro}"
+               class="botao"
+               th:href="@{/lancamentos(visualizacao='outro')}"
+               style="margin-bottom: 25px;">
+
+                ← VOLTAR PARA TODOS
+
+            </a>
+
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                flex-wrap: wrap;
+                margin-bottom: 25px;
+            ">
+
+                <div>
+
+                    <span class="marca"
+                          th:text="${responsavelExibido}">
                         Usuário
                     </span>
 
-                </h2>
+
+                    <h2>
+
+                        <span th:text="${tituloFiltro}">
+                            Gastos
+                        </span>
+
+                        —
+
+                        <span th:text="${periodoFiltroFormatado}">
+                            Novembro de 2026
+                        </span>
+
+                    </h2>
 
 
-                <p>
+                    <p style="
+                        color: #7a8494;
+                        margin-top: 5px;
+                    ">
 
-                    <strong th:text="${quantidadeResultados}">
-                        0
+                        Somente os lançamentos desta categoria.
+
+                    </p>
+
+                </div>
+
+
+                <div style="
+                    background: #f5f7fb;
+                    padding: 14px 20px;
+                    border-radius: 12px;
+                ">
+
+                    <span style="
+                        display: block;
+                        color: #7a8494;
+                        font-size: 12px;
+                        margin-bottom: 4px;
+                    ">
+
+                        TOTAL
+
+                    </span>
+
+
+                    <strong style="font-size: 22px;"
+                            th:text="${totalFiltro}">
+
+                        R$ 0,00
+
                     </strong>
 
-                    lançamento(s) no total.
-
-                </p>
+                </div>
 
             </div>
+
+
+            <table th:if="${!lancamentosFiltrados.isEmpty()}">
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        Descrição
+                    </th>
+
+                    <th>
+                        Valor
+                    </th>
+
+                    <th>
+                        Tipo
+                    </th>
+
+                    <th>
+                        Categoria
+                    </th>
+
+                    <th th:if="${!visualizandoOutro}">
+                        Ações
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                <tr th:each="item : ${lancamentosFiltrados}">
+
+
+                    <td th:text="${item.descricao}">
+                    </td>
+
+
+                    <td th:text="'R$ ' + ${item.valor}">
+                    </td>
+
+
+                    <td th:text="${item.tipo.descricao}">
+                    </td>
+
+
+                    <td th:text="${item.categoria}">
+                    </td>
+
+
+                    <td th:if="${!visualizandoOutro}">
+
+
+                        <a class="botao"
+                           th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
+
+                            Editar
+
+                        </a>
+
+
+                        <form
+                                th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
+                                method="post"
+                                style="display: inline;"
+                                onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+
+                            <button class="botao"
+                                    type="submit">
+
+                                Excluir
+
+                            </button>
+
+                        </form>
+
+
+                    </td>
+
+                </tr>
+
+
+                </tbody>
+
+            </table>
+
+
+            <div th:if="${lancamentosFiltrados.isEmpty()}"
+                 style="
+                    text-align: center;
+                    padding: 40px 20px;
+                 ">
+
+                Nenhum lançamento encontrado.
+
+            </div>
+
 
         </section>
 
 
-        <!-- MESES -->
+        <!-- ====================================== -->
+        <!-- VISÃO NORMAL POR MÊS -->
+        <!-- ====================================== -->
 
-        <div th:if="${!gruposLancamentos.isEmpty()}">
-
-
-            <details
-                    th:each="grupo, status : ${gruposLancamentos}"
-                    class="tabela-container"
-                    th:attr="open=${status.first} ? 'open' : null"
-                    style="margin-bottom: 20px;">
+        <div th:if="${!filtroAtivo}">
 
 
-                <summary style="
-                    cursor: pointer;
-                    font-size: 18px;
-                    font-weight: bold;
-                    padding: 5px 0;
-                ">
+            <section class="secao">
 
-                    <span th:text="${grupo.titulo}">
-                        Novembro de 2026
-                    </span>
+                <div class="titulo-secao">
 
-                    <span style="
-                        font-size: 13px;
-                        font-weight: normal;
-                        color: #7a8494;
-                        margin-left: 8px;
-                    ">
 
-                        (
+                    <h2 th:if="${!visualizandoOutro}">
+                        Meus lançamentos
+                    </h2>
 
-                        <span th:text="${grupo.lancamentos.size()}">
-                            0
+
+                    <h2 th:if="${visualizandoOutro}">
+
+                        Lançamentos de
+
+                        <span th:text="${nomeOutroUsuario}">
+                            Usuário
                         </span>
 
-                        lançamento(s))
-
-                    </span>
-
-                </summary>
+                    </h2>
 
 
-                <div style="margin-top: 20px;">
+                    <p>
 
+                        <strong th:text="${quantidadeResultados}">
+                            0
+                        </strong>
+
+                        lançamento(s) no total.
+
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- MESES -->
+
+            <div th:if="${!gruposLancamentos.isEmpty()}">
+
+
+                <details
+                        th:each="grupo, status : ${gruposLancamentos}"
+                        class="tabela-container"
+                        th:attr="open=${status.first} ? 'open' : null"
+                        style="margin-bottom: 20px;">
+
+
+                    <summary style="
+                        cursor: pointer;
+                        padding: 8px 0;
+                    ">
+
+
+                        <strong style="font-size: 19px;"
+                                th:text="${grupo.titulo}">
+
+                            Novembro de 2026
+
+                        </strong>
+
+
+                        <span style="
+                            display: block;
+                            color: #7a8494;
+                            font-size: 13px;
+                            margin-top: 4px;
+                        ">
+
+                            <span th:text="${grupo.lancamentos.size()}">
+                                0
+                            </span>
+
+                            lançamento(s)
+
+                        </span>
+
+
+                    </summary>
+
+
+                    <!-- ====================================== -->
+                    <!-- CARDS CLICÁVEIS -->
+                    <!-- ====================================== -->
+
+                    <div style="
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 12px;
+                        margin-top: 22px;
+                        margin-bottom: 25px;
+                    ">
+
+
+                        <!-- RECEITAS -->
+
+                        <a class="card-link"
+                           th:href="@{/lancamentos(
+                                periodo=${grupo.periodo},
+                                resumo='receitas',
+                                visualizacao=${visualizandoOutro ? 'outro' : null}
+                           )}"
+                           style="
+                                background: #eefaf5;
+                                padding: 14px 16px;
+                                border-radius: 12px;
+                                text-decoration: none;
+                                color: inherit;
+                           ">
+
+                            <span style="
+                                display: block;
+                                font-size: 11px;
+                                color: #67756e;
+                                margin-bottom: 5px;
+                            ">
+
+                                RECEITAS
+
+                            </span>
+
+
+                            <strong style="font-size: 20px;"
+                                    th:text="${grupo.receitas}">
+
+                                R$ 0,00
+
+                            </strong>
+
+                        </a>
+
+
+                        <!-- GASTOS -->
+
+                        <a class="card-link"
+                           th:href="@{/lancamentos(
+                                periodo=${grupo.periodo},
+                                resumo='gastos',
+                                visualizacao=${visualizandoOutro ? 'outro' : null}
+                           )}"
+                           style="
+                                background: #fff2f2;
+                                padding: 14px 16px;
+                                border-radius: 12px;
+                                text-decoration: none;
+                                color: inherit;
+                           ">
+
+                            <span style="
+                                display: block;
+                                font-size: 11px;
+                                color: #7c6969;
+                                margin-bottom: 5px;
+                            ">
+
+                                GASTOS
+
+                            </span>
+
+
+                            <strong style="font-size: 20px;"
+                                    th:text="${grupo.gastos}">
+
+                                R$ 0,00
+
+                            </strong>
+
+                        </a>
+
+
+                        <!-- GUARDADO -->
+
+                        <a class="card-link"
+                           th:href="@{/lancamentos(
+                                periodo=${grupo.periodo},
+                                resumo='guardado',
+                                visualizacao=${visualizandoOutro ? 'outro' : null}
+                           )}"
+                           style="
+                                background: #f4f1ff;
+                                padding: 14px 16px;
+                                border-radius: 12px;
+                                text-decoration: none;
+                                color: inherit;
+                           ">
+
+                            <span style="
+                                display: block;
+                                font-size: 11px;
+                                color: #716b82;
+                                margin-bottom: 5px;
+                            ">
+
+                                GUARDADO
+
+                            </span>
+
+
+                            <strong style="font-size: 20px;"
+                                    th:text="${grupo.guardado}">
+
+                                R$ 0,00
+
+                            </strong>
+
+                        </a>
+
+
+                    </div>
+
+
+                    <!-- ====================================== -->
+                    <!-- TODOS OS LANÇAMENTOS DO MÊS -->
+                    <!-- ====================================== -->
 
                     <table>
 
@@ -193,10 +549,21 @@
 
                         <tr>
 
-                            <th>Descrição</th>
-                            <th>Valor</th>
-                            <th>Tipo</th>
-                            <th>Categoria</th>
+                            <th>
+                                Descrição
+                            </th>
+
+                            <th>
+                                Valor
+                            </th>
+
+                            <th>
+                                Tipo
+                            </th>
+
+                            <th>
+                                Categoria
+                            </th>
 
                             <th th:if="${!visualizandoOutro}">
                                 Ações
@@ -266,39 +633,40 @@
                     </table>
 
 
-                </div>
-
-            </details>
+                </details>
 
 
-        </div>
+            </div>
 
 
-        <!-- NENHUM LANÇAMENTO -->
+            <!-- NENHUM LANÇAMENTO -->
 
-        <div th:if="${gruposLancamentos.isEmpty()}"
-             class="tabela-container"
-             style="
-                text-align: center;
-                padding: 50px 20px;
-             ">
-
-
-            <p>
-                Nenhum lançamento cadastrado.
-            </p>
+            <div th:if="${gruposLancamentos.isEmpty()}"
+                 class="tabela-container"
+                 style="
+                    text-align: center;
+                    padding: 50px 20px;
+                 ">
 
 
-            <br>
+                <p>
+                    Nenhum lançamento cadastrado.
+                </p>
 
 
-            <a th:if="${!visualizandoOutro}"
-               class="botao-principal"
-               th:href="@{/lancamentos/novo}">
+                <br>
 
-                Criar primeiro lançamento
 
-            </a>
+                <a th:if="${!visualizandoOutro}"
+                   class="botao-principal"
+                   th:href="@{/lancamentos/novo}">
+
+                    Criar primeiro lançamento
+
+                </a>
+
+
+            </div>
 
 
         </div>
