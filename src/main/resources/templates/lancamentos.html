@@ -30,17 +30,33 @@
                 FINANÇAS A DOIS
             </span>
 
-            <h1>
-                Lançamentos
+
+            <h1 th:if="${!visualizandoOutro}">
+                Seus lançamentos
             </h1>
 
-            <p>
-                Movimentações financeiras do casal.
+
+            <h1 th:if="${visualizandoOutro}">
+                Lançamentos de
+                <span th:text="${nomeOutroUsuario}">
+                    Usuário
+                </span>
+            </h1>
+
+
+            <p th:if="${!visualizandoOutro}">
+                Seus lançamentos organizados por mês.
+            </p>
+
+
+            <p th:if="${visualizandoOutro}">
+                Lançamentos da outra pessoa organizados por mês.
             </p>
 
         </div>
 
-        <a class="botao-principal"
+
+        <a class="botao"
            th:href="@{/}">
             Dashboard
         </a>
@@ -48,348 +64,245 @@
     </header>
 
 
+    <!-- NAVEGAÇÃO -->
+
+    <nav class="acoes-topo"
+         style="margin-bottom: 30px;">
+
+
+        <a th:if="${visualizandoOutro}"
+           class="botao-principal"
+           th:href="@{/lancamentos}">
+
+            ← MEUS LANÇAMENTOS
+
+        </a>
+
+
+        <a th:if="${!visualizandoOutro}"
+           class="botao"
+           th:href="@{/lancamentos(visualizacao='outro')}">
+
+            VER LANÇAMENTOS DA
+
+            <span th:text="${nomeOutroUsuario}">
+                OUTRA PESSOA
+            </span>
+
+        </a>
+
+
+        <a class="botao-principal"
+           th:href="@{/lancamentos/novo}">
+
+            + NOVO LANÇAMENTO
+
+        </a>
+
+    </nav>
+
+
     <main>
 
-        <section class="formulario">
 
-            <h2 th:text="${modoEdicao}
-                    ? 'Editar lançamento'
-                    : 'Novo lançamento'">
+        <!-- QUANTIDADE TOTAL -->
 
-                Novo lançamento
+        <section class="secao">
 
-            </h2>
+            <div class="titulo-secao">
 
-            <p>
-                Este lançamento será registrado como
-                <strong th:text="${nomeUsuario}">
-                    Usuário
-                </strong>.
-            </p>
+                <h2 th:if="${!visualizandoOutro}">
+                    Meus lançamentos
+                </h2>
 
-            <br>
+                <h2 th:if="${visualizandoOutro}">
 
+                    Lançamentos de
 
-            <form th:action="@{/lancamentos}"
-                  th:object="${lancamento}"
-                  method="post">
+                    <span th:text="${nomeOutroUsuario}">
+                        Usuário
+                    </span>
 
-                <input type="hidden"
-                       th:field="*{id}">
+                </h2>
 
 
-                <div class="campo">
+                <p>
 
-                    <label>
-                        Valor *
-                    </label>
+                    <strong th:text="${quantidadeResultados}">
+                        0
+                    </strong>
 
-                    <input type="number"
-                           step="0.01"
-                           min="0"
-                           th:field="*{valor}"
-                           required>
+                    lançamento(s) no total.
 
-                </div>
+                </p>
 
-
-                <div class="campo">
-
-                    <label>
-                        Mês e ano *
-                    </label>
-
-                    <input type="month"
-                           name="periodoLancamento"
-                           th:value="${periodoLancamento}"
-                           required>
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Tipo *
-                    </label>
-
-                    <select th:field="*{tipo}"
-                            required>
-
-                        <option value="">
-                            Selecione
-                        </option>
-
-                        <option
-                                th:each="tipo : ${tipos}"
-                                th:value="${tipo}"
-                                th:text="${tipo.descricao}">
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Descrição
-                        <small>(opcional)</small>
-                    </label>
-
-                    <input type="text"
-                           th:field="*{descricao}"
-                           placeholder="Ex.: Carrefour, Freelance...">
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Categoria
-                        <small>(opcional)</small>
-                    </label>
-
-                    <input type="text"
-                           th:field="*{categoria}"
-                           placeholder="Ex.: Mercado, Restaurante...">
-
-                </div>
-
-
-                <button class="botao"
-                        type="submit"
-                        th:text="${modoEdicao}
-                                ? 'Salvar alterações'
-                                : 'Salvar lançamento'">
-
-                    Salvar lançamento
-
-                </button>
-
-
-                <a th:if="${modoEdicao}"
-                   class="botao"
-                   th:href="@{/lancamentos}">
-
-                    Cancelar
-
-                </a>
-
-            </form>
+            </div>
 
         </section>
 
 
-        <section class="formulario">
+        <!-- MESES -->
 
-            <h2>
-                Filtrar lançamentos
-            </h2>
+        <div th:if="${!gruposLancamentos.isEmpty()}">
 
 
-            <form method="get"
-                  th:action="@{/lancamentos}">
+            <details
+                    th:each="grupo, status : ${gruposLancamentos}"
+                    class="tabela-container"
+                    th:attr="open=${status.first} ? 'open' : null"
+                    style="margin-bottom: 20px;">
 
 
-                <div class="campo">
+                <summary style="
+                    cursor: pointer;
+                    font-size: 18px;
+                    font-weight: bold;
+                    padding: 5px 0;
+                ">
 
-                    <label>
-                        Mês e ano
-                    </label>
+                    <span th:text="${grupo.titulo}">
+                        Novembro de 2026
+                    </span>
 
-                    <input type="month"
-                           name="periodo"
-                           th:value="${periodoSelecionado}">
+                    <span style="
+                        font-size: 13px;
+                        font-weight: normal;
+                        color: #7a8494;
+                        margin-left: 8px;
+                    ">
 
-                </div>
+                        (
 
-
-                <div class="campo">
-
-                    <label>
-                        Responsável
-                    </label>
-
-                    <select name="responsavel">
-
-                        <option value="">
-                            Todos
-                        </option>
-
-                        <option value="Kleber"
-                                th:selected="${responsavelSelecionado == 'Kleber'}">
-                            Kleber
-                        </option>
-
-                        <option value="Giovanna"
-                                th:selected="${responsavelSelecionado == 'Giovanna'}">
-                            Giovanna
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Tipo
-                    </label>
-
-                    <select name="tipo">
-
-                        <option value="">
-                            Todos
-                        </option>
-
-                        <option
-                                th:each="tipo : ${tipos}"
-                                th:value="${tipo}"
-                                th:text="${tipo.descricao}"
-                                th:selected="${tipoSelecionado == tipo}">
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label>
-                        Buscar
-                    </label>
-
-                    <input type="text"
-                           name="busca"
-                           th:value="${busca}"
-                           placeholder="Descrição ou categoria">
-
-                </div>
-
-
-                <button class="botao"
-                        type="submit">
-                    Filtrar
-                </button>
-
-                <a class="botao"
-                   th:href="@{/lancamentos}">
-                    Limpar filtros
-                </a>
-
-            </form>
-
-        </section>
-
-
-        <section class="tabela-container">
-
-            <h2>
-                Lançamentos cadastrados
-            </h2>
-
-            <p>
-                <strong th:text="${quantidadeResultados}">
-                    0
-                </strong>
-
-                lançamento(s) encontrado(s).
-            </p>
-
-            <br>
-
-
-            <table th:if="${!lancamentos.isEmpty()}">
-
-                <thead>
-
-                <tr>
-
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Mês/Ano</th>
-                    <th>Tipo</th>
-                    <th>Categoria</th>
-                    <th>Responsável</th>
-                    <th>Ações</th>
-
-                </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                <tr th:each="item : ${lancamentos}">
-
-                    <td th:text="${item.descricao}">
-                    </td>
-
-                    <td th:text="'R$ ' + ${item.valor}">
-                    </td>
-
-                    <td th:text="${#temporals.format(item.data, 'MM/yyyy')}">
-                    </td>
-
-                    <td th:text="${item.tipo.descricao}">
-                    </td>
-
-                    <td th:text="${item.categoria}">
-                    </td>
-
-                    <td th:text="${item.responsavel}">
-                    </td>
-
-
-                    <td>
-
-                        <div th:if="${item.responsavel == nomeUsuario}">
-
-                            <a class="botao"
-                               th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
-                                Editar
-                            </a>
-
-
-                            <form
-                                    th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
-                                    method="post"
-                                    style="display: inline;"
-                                    onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
-
-                                <button class="botao"
-                                        type="submit">
-                                    Excluir
-                                </button>
-
-                            </form>
-
-                        </div>
-
-
-                        <span th:if="${item.responsavel != nomeUsuario}">
-                            —
+                        <span th:text="${grupo.lancamentos.size()}">
+                            0
                         </span>
 
-                    </td>
+                        lançamento(s))
 
-                </tr>
+                    </span>
 
-                </tbody>
-
-            </table>
+                </summary>
 
 
-            <p th:if="${lancamentos.isEmpty()}">
-                Nenhum lançamento encontrado com esses filtros.
+                <div style="margin-top: 20px;">
+
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Tipo</th>
+                            <th>Categoria</th>
+
+                            <th th:if="${!visualizandoOutro}">
+                                Ações
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                        <tr th:each="item : ${grupo.lancamentos}">
+
+
+                            <td th:text="${item.descricao}">
+                            </td>
+
+
+                            <td th:text="'R$ ' + ${item.valor}">
+                            </td>
+
+
+                            <td th:text="${item.tipo.descricao}">
+                            </td>
+
+
+                            <td th:text="${item.categoria}">
+                            </td>
+
+
+                            <td th:if="${!visualizandoOutro}">
+
+
+                                <a class="botao"
+                                   th:href="@{/lancamentos/editar/{id}(id=${item.id})}">
+
+                                    Editar
+
+                                </a>
+
+
+                                <form
+                                        th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
+                                        method="post"
+                                        style="display: inline;"
+                                        onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
+
+                                    <button class="botao"
+                                            type="submit">
+
+                                        Excluir
+
+                                    </button>
+
+                                </form>
+
+
+                            </td>
+
+                        </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+
+            </details>
+
+
+        </div>
+
+
+        <!-- NENHUM LANÇAMENTO -->
+
+        <div th:if="${gruposLancamentos.isEmpty()}"
+             class="tabela-container"
+             style="
+                text-align: center;
+                padding: 50px 20px;
+             ">
+
+
+            <p>
+                Nenhum lançamento cadastrado.
             </p>
 
-        </section>
+
+            <br>
+
+
+            <a th:if="${!visualizandoOutro}"
+               class="botao-principal"
+               th:href="@{/lancamentos/novo}">
+
+                Criar primeiro lançamento
+
+            </a>
+
+
+        </div>
+
 
     </main>
 

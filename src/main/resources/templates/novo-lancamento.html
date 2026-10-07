@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Novo Lançamento | Finanças a Dois
+    </title>
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="topo">
+
+        <div>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+            <h1 th:text="${modoEdicao}
+                    ? 'Editar lançamento'
+                    : 'Novo lançamento'">
+
+                Novo lançamento
+
+            </h1>
+
+            <p>
+                Registre uma nova movimentação financeira.
+            </p>
+
+        </div>
+
+        <a class="botao"
+           th:href="@{/}">
+            Dashboard
+        </a>
+
+    </header>
+
+
+    <nav class="acoes-topo"
+         style="margin-bottom: 30px;">
+
+        <a class="botao"
+           th:href="@{/lancamentos}">
+            SEUS LANÇAMENTOS
+        </a>
+
+        <a class="botao-principal"
+           th:href="@{/lancamentos/novo}">
+            + NOVO LANÇAMENTO
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <section class="formulario">
+
+            <h2 th:text="${modoEdicao}
+                    ? 'Editar lançamento'
+                    : 'Novo lançamento'">
+
+                Novo lançamento
+
+            </h2>
+
+
+            <p>
+
+                Este lançamento será registrado como
+
+                <strong th:text="${nomeUsuario}">
+                    Usuário
+                </strong>.
+
+            </p>
+
+            <br>
+
+
+            <form th:action="@{/lancamentos}"
+                  th:object="${lancamento}"
+                  method="post">
+
+
+                <input type="hidden"
+                       th:field="*{id}">
+
+
+                <div class="campo">
+
+                    <label>
+                        Valor *
+                    </label>
+
+                    <input type="number"
+                           step="0.01"
+                           min="0"
+                           th:field="*{valor}"
+                           required>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Mês e ano *
+                    </label>
+
+                    <input type="month"
+                           name="periodoLancamento"
+                           th:value="${periodoLancamento}"
+                           required>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Tipo *
+                    </label>
+
+                    <select th:field="*{tipo}"
+                            required>
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option
+                                th:each="tipo : ${tipos}"
+                                th:value="${tipo}"
+                                th:text="${tipo.descricao}">
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Descrição
+                        <small>(opcional)</small>
+                    </label>
+
+                    <input type="text"
+                           th:field="*{descricao}"
+                           placeholder="Ex.: Uber, Carrefour, Freelance...">
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label>
+                        Categoria
+                        <small>(opcional)</small>
+                    </label>
+
+                    <input type="text"
+                           th:field="*{categoria}"
+                           placeholder="Ex.: Transporte, Mercado, Alimentação...">
+
+                </div>
+
+
+                <button class="botao-principal"
+                        type="submit"
+                        th:text="${modoEdicao}
+                                ? 'Salvar alterações'
+                                : 'Salvar lançamento'">
+
+                    Salvar lançamento
+
+                </button>
+
+
+                <a th:if="${modoEdicao}"
+                   class="botao"
+                   th:href="@{/lancamentos}">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

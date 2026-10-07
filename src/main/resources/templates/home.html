@@ -46,9 +46,14 @@
 
         <div class="acoes-topo">
 
-            <a class="botao-principal"
+            <a class="botao"
                th:href="@{/lancamentos}">
-                + Novo lançamento
+                SEUS LANÇAMENTOS
+            </a>
+
+            <a class="botao-principal"
+               th:href="@{/lancamentos/novo}">
+                + NOVO LANÇAMENTO
             </a>
 
             <form th:action="@{/logout}"
@@ -66,6 +71,8 @@
     </header>
 
 
+    <!-- SELETOR DE MÊS -->
+
     <section class="seletor-mes">
 
         <a class="botao-mes"
@@ -76,14 +83,18 @@
 
         <div class="mes-atual">
 
-            <span>PERÍODO</span>
+            <span>
+                PERÍODO
+            </span>
 
             <strong>
 
                 <span th:text="${nomeMes}">
+                    Mês
                 </span>
 
                 <span th:text="${ano}">
+                    2026
                 </span>
 
             </strong>
@@ -102,7 +113,9 @@
     <main>
 
 
-        <!-- PAINEL DO USUÁRIO LOGADO -->
+        <!-- ====================================== -->
+        <!-- PAINEL PRINCIPAL DO USUÁRIO LOGADO -->
+        <!-- ====================================== -->
 
         <section class="painel-mes">
 
@@ -124,6 +137,7 @@
 
 
             <div class="painel-mes-grid">
+
 
                 <div class="resumo-mes-item">
 
@@ -189,20 +203,22 @@
         </section>
 
 
-        <!--
-        Os dois blocos abaixo mudam de ordem automaticamente
-        dependendo de quem está logado.
-        -->
+        <!-- ====================================== -->
+        <!-- BLOCOS INDIVIDUAIS -->
+        <!-- ====================================== -->
 
         <div style="display: flex; flex-direction: column;">
 
 
+            <!-- ====================================== -->
             <!-- KLEBER -->
+            <!-- ====================================== -->
 
             <section class="secao"
                      th:style="${nomeUsuario == 'Kleber'}
                      ? 'order: 1;'
                      : 'order: 2;'">
+
 
                 <div class="titulo-secao">
 
@@ -220,6 +236,8 @@
                 <div class="destaques">
 
 
+                    <!-- SALÁRIO -->
+
                     <a class="card destaque receita card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -227,7 +245,9 @@
                             tipo='RENDA_PRINCIPAL'
                        )}">
 
-                        <span>Salário</span>
+                        <span>
+                            Salário
+                        </span>
 
                         <strong th:text="${kleberRendaPrincipal}">
                             R$ 0,00
@@ -236,6 +256,8 @@
                     </a>
 
 
+                    <!-- RENDA EXTRA -->
+
                     <a class="card destaque receita card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -243,7 +265,9 @@
                             tipo='RENDA_EXTRA'
                        )}">
 
-                        <span>Renda extra</span>
+                        <span>
+                            Renda extra
+                        </span>
 
                         <strong th:text="${kleberRendaExtra}">
                             R$ 0,00
@@ -252,6 +276,8 @@
                     </a>
 
 
+                    <!-- CARTÃO -->
+
                     <a class="card destaque gasto card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -259,7 +285,9 @@
                             tipo='CARTAO_CREDITO'
                        )}">
 
-                        <span>Cartão de crédito</span>
+                        <span>
+                            Cartão de crédito
+                        </span>
 
                         <strong th:text="${kleberCartaoCredito}">
                             R$ 0,00
@@ -268,6 +296,8 @@
                     </a>
 
 
+                    <!-- OUTROS GASTOS -->
+
                     <a class="card destaque gasto card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -275,7 +305,9 @@
                             tipo='OUTRO_GASTO'
                        )}">
 
-                        <span>Outros gastos</span>
+                        <span>
+                            Outros gastos
+                        </span>
 
                         <strong th:text="${kleberOutrosGastos}">
                             R$ 0,00
@@ -285,7 +317,11 @@
 
 
                     <!--
-                    Só aparece aqui quando a Giovanna está logada.
+                    O guardado do Kleber só aparece aqui
+                    quando quem está logado é a Giovanna.
+
+                    Quando Kleber está logado, essa informação
+                    já aparece no painel "SEU MÊS".
                     -->
 
                     <a th:if="${nomeUsuario != 'Kleber'}"
@@ -296,7 +332,9 @@
                             tipo='GUARDADO'
                        )}">
 
-                        <span>Guardado no mês</span>
+                        <span>
+                            Guardado no mês
+                        </span>
 
                         <strong th:text="${kleberGuardadoMes}">
                             R$ 0,00
@@ -304,6 +342,11 @@
 
                     </a>
 
+
+                    <!--
+                    O disponível do Kleber só aparece aqui
+                    quando a Giovanna está logada.
+                    -->
 
                     <div th:if="${nomeUsuario != 'Kleber'}"
                          class="card destaque saldo">
@@ -321,6 +364,8 @@
                 </div>
 
 
+                <!-- META KLEBER -->
+
                 <div class="card pessoa">
 
                     <div>
@@ -334,18 +379,23 @@
                         </strong>
 
                         <p>
+
                             de
+
                             <span th:text="${metaIndividual}">
                                 R$ 20.000,00
                             </span>
+
                         </p>
 
                         <br>
+
 
                         <progress
                                 th:value="${kleberPercentualBarra}"
                                 max="100">
                         </progress>
+
 
                         <p>
 
@@ -364,12 +414,15 @@
             </section>
 
 
+            <!-- ====================================== -->
             <!-- GIOVANNA -->
+            <!-- ====================================== -->
 
             <section class="secao"
                      th:style="${nomeUsuario == 'Giovanna'}
                      ? 'order: 1;'
                      : 'order: 2;'">
+
 
                 <div class="titulo-secao">
 
@@ -387,6 +440,8 @@
                 <div class="destaques">
 
 
+                    <!-- SALÁRIO -->
+
                     <a class="card destaque receita card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -394,7 +449,9 @@
                             tipo='RENDA_PRINCIPAL'
                        )}">
 
-                        <span>Salário</span>
+                        <span>
+                            Salário
+                        </span>
 
                         <strong th:text="${giovannaRendaPrincipal}">
                             R$ 0,00
@@ -403,6 +460,8 @@
                     </a>
 
 
+                    <!-- RENDA EXTRA -->
+
                     <a class="card destaque receita card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -410,7 +469,9 @@
                             tipo='RENDA_EXTRA'
                        )}">
 
-                        <span>Renda extra</span>
+                        <span>
+                            Renda extra
+                        </span>
 
                         <strong th:text="${giovannaRendaExtra}">
                             R$ 0,00
@@ -419,6 +480,8 @@
                     </a>
 
 
+                    <!-- CARTÃO -->
+
                     <a class="card destaque gasto card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -426,7 +489,9 @@
                             tipo='CARTAO_CREDITO'
                        )}">
 
-                        <span>Cartão de crédito</span>
+                        <span>
+                            Cartão de crédito
+                        </span>
 
                         <strong th:text="${giovannaCartaoCredito}">
                             R$ 0,00
@@ -435,6 +500,8 @@
                     </a>
 
 
+                    <!-- OUTROS GASTOS -->
+
                     <a class="card destaque gasto card-link"
                        th:href="@{/detalhes(
                             periodo=${periodoAtual},
@@ -442,7 +509,9 @@
                             tipo='OUTRO_GASTO'
                        )}">
 
-                        <span>Outros gastos</span>
+                        <span>
+                            Outros gastos
+                        </span>
 
                         <strong th:text="${giovannaOutrosGastos}">
                             R$ 0,00
@@ -452,7 +521,8 @@
 
 
                     <!--
-                    Só aparece aqui quando o Kleber está logado.
+                    O guardado da Giovanna só aparece aqui
+                    quando quem está logado é o Kleber.
                     -->
 
                     <a th:if="${nomeUsuario != 'Giovanna'}"
@@ -463,7 +533,9 @@
                             tipo='GUARDADO'
                        )}">
 
-                        <span>Guardado no mês</span>
+                        <span>
+                            Guardado no mês
+                        </span>
 
                         <strong th:text="${giovannaGuardadoMes}">
                             R$ 0,00
@@ -471,6 +543,11 @@
 
                     </a>
 
+
+                    <!--
+                    O disponível da Giovanna só aparece aqui
+                    quando Kleber está logado.
+                    -->
 
                     <div th:if="${nomeUsuario != 'Giovanna'}"
                          class="card destaque saldo">
@@ -488,6 +565,8 @@
                 </div>
 
 
+                <!-- META GIOVANNA -->
+
                 <div class="card pessoa">
 
                     <div>
@@ -501,18 +580,23 @@
                         </strong>
 
                         <p>
+
                             de
+
                             <span th:text="${metaIndividual}">
                                 R$ 20.000,00
                             </span>
+
                         </p>
 
                         <br>
+
 
                         <progress
                                 th:value="${giovannaPercentualBarra}"
                                 max="100">
                         </progress>
+
 
                         <p>
 

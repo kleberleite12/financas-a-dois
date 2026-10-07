@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.YearMonth;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Controller
 public class LancamentoController {
@@ -37,12 +41,13 @@ public class LancamentoController {
         this.lancamentoRepository = lancamentoRepository;
     }
 
+    // =========================
+    // SEUS LANÇAMENTOS
+    // =========================
+
     @GetMapping("/lancamentos")
     public String listar(
-            @RequestParam(required = false) String periodo,
-            @RequestParam(required = false) String responsavel,
-            @RequestParam(required = false) TipoLancamento tipo,
-            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) String visualizacao,
             Model model,
             Authentication authentication) {
 
@@ -51,28 +56,106 @@ public class LancamentoController {
                         authentication.getName()
                 );
 
-        List<Lancamento> lancamentos =
-                buscarLancamentosFiltrados(
-                        periodo,
-                        responsavel,
-                        tipo,
-                        busca
+        String nomeOutroUsuario =
+                nomeUsuario.equalsIgnoreCase("Kleber")
+                        ? "Giovanna"
+                        : "Kleber";
+
+        boolean visualizandoOutro =
+                "outro".equalsIgnoreCase(
+                        visualizacao
                 );
 
-        prepararPagina(
-                model,
-                new Lancamento(),
-                lancamentos,
-                nomeUsuario,
-                false,
-                periodo,
-                responsavel,
-                tipo,
-                busca
+        String responsavelExibido =
+                visualizandoOutro
+                        ? nomeOutroUsuario
+                        : nomeUsuario;
+
+        List<Lancamento> lancamentos =
+                lancamentoRepository.findAll(
+                                Sort.by(
+                                        Sort.Order.desc("data"),
+                                        Sort.Order.desc("id")
+                                )
+                        )
+                        .stream()
+                        .filter(lancamento ->
+                                responsavelExibido.equalsIgnoreCase(
+                                        lancamento.getResponsavel()
+                                )
+                        )
+                        .toList();
+
+        List<GrupoLancamentos> gruposLancamentos =
+                agruparPorMes(
+                        lancamentos
+                );
+
+        model.addAttribute(
+                "lancamentos",
+                lancamentos
+        );
+
+        model.addAttribute(
+                "gruposLancamentos",
+                gruposLancamentos
+        );
+
+        model.addAttribute(
+                "nomeUsuario",
+                nomeUsuario
+        );
+
+        model.addAttribute(
+                "nomeOutroUsuario",
+                nomeOutroUsuario
+        );
+
+        model.addAttribute(
+                "responsavelExibido",
+                responsavelExibido
+        );
+
+        model.addAttribute(
+                "visualizandoOutro",
+                visualizandoOutro
+        );
+
+        model.addAttribute(
+                "quantidadeResultados",
+                lancamentos.size()
         );
 
         return "lancamentos";
     }
+
+    // =========================
+    // NOVO LANÇAMENTO
+    // =========================
+
+    @GetMapping("/lancamentos/novo")
+    public String novo(
+            Model model,
+            Authentication authentication) {
+
+        String nomeUsuario =
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
+
+        prepararFormulario(
+                model,
+                new Lancamento(),
+                nomeUsuario,
+                false
+        );
+
+        return "novo-lancamento";
+    }
+
+    // =========================
+    // EDITAR
+    // =========================
 
     @GetMapping("/lancamentos/editar/{id}")
     public String editar(
@@ -116,25 +199,19 @@ public class LancamentoController {
             );
         }
 
-        prepararPagina(
+        prepararFormulario(
                 model,
                 lancamento,
-                buscarLancamentosFiltrados(
-                        null,
-                        null,
-                        null,
-                        null
-                ),
                 nomeUsuario,
-                true,
-                null,
-                null,
-                null,
-                null
+                true
         );
 
-        return "lancamentos";
+        return "novo-lancamento";
     }
+
+    // =========================
+    // SALVAR
+    // =========================
 
     @PostMapping("/lancamentos")
     public String salvar(
@@ -207,6 +284,10 @@ public class LancamentoController {
         return "redirect:/lancamentos";
     }
 
+    // =========================
+    // EXCLUIR
+    // =========================
+
     @PostMapping("/lancamentos/excluir/{id}")
     public String excluir(
             @PathVariable Long id,
@@ -239,200 +320,85 @@ public class LancamentoController {
         return "redirect:/lancamentos";
     }
 
-    private void preencherCamposOpcionais(
-            Lancamento lancamento) {
+    // =========================
+    // AGRUPAR POR MÊS
+    // =========================
 
-        if (lancamento.getDescricao() == null
-                || lancamento.getDescricao().isBlank()) {
+    private List<GrupoLancamentos> agruparPorMes(
+            List<Lancamento> lancamentos) {
 
-            lancamento.setDescricao(
-                    lancamento.getTipo().getDescricao()
-            );
-        }
+        Map<YearMonth, List<Lancamento>> grupos =
+                new LinkedHashMap<>();
 
-        if (lancamento.getCategoria() == null
-                || lancamento.getCategoria().isBlank()) {
+        for (Lancamento lancamento : lancamentos) {
 
-            lancamento.setCategoria(
-                    lancamento.getTipo().getDescricao()
-            );
-        }
-    }
-
-    private List<Lancamento> buscarLancamentosFiltrados(
-            String periodo,
-            String responsavel,
-            TipoLancamento tipo,
-            String busca) {
-
-        List<Lancamento> lancamentos =
-                lancamentoRepository.findAll(
-                        Sort.by(
-                                Sort.Order.desc("data"),
-                                Sort.Order.desc("id")
-                        )
-                );
-
-        return lancamentos.stream()
-
-                .filter(lancamento ->
-                        filtrarPeriodo(
-                                lancamento,
-                                periodo
-                        )
-                )
-
-                .filter(lancamento ->
-                        responsavel == null
-                                || responsavel.isBlank()
-                                || lancamento
-                                .getResponsavel()
-                                .equalsIgnoreCase(
-                                        responsavel
-                                )
-                )
-
-                .filter(lancamento ->
-                        tipoCorresponde(
-                                lancamento.getTipo(),
-                                tipo
-                        )
-                )
-
-                .filter(lancamento ->
-                        filtrarBusca(
-                                lancamento,
-                                busca
-                        )
-                )
-
-                .toList();
-    }
-
-    private boolean tipoCorresponde(
-            TipoLancamento tipoLancamento,
-            TipoLancamento tipoFiltro) {
-
-        if (tipoFiltro == null) {
-            return true;
-        }
-
-        if (tipoFiltro
-                == TipoLancamento.RENDA_PRINCIPAL) {
-
-            return tipoLancamento
-                    == TipoLancamento.RENDA_PRINCIPAL
-                    || tipoLancamento
-                    == TipoLancamento.RECEITA;
-        }
-
-        if (tipoFiltro
-                == TipoLancamento.CARTAO_CREDITO) {
-
-            return tipoLancamento
-                    == TipoLancamento.CARTAO_CREDITO
-                    || tipoLancamento
-                    == TipoLancamento.GASTO;
-        }
-
-        return tipoLancamento
-                == tipoFiltro;
-    }
-
-    private boolean filtrarPeriodo(
-            Lancamento lancamento,
-            String periodo) {
-
-        if (periodo == null
-                || periodo.isBlank()) {
-
-            return true;
-        }
-
-        try {
-
-            YearMonth periodoSelecionado =
-                    YearMonth.parse(
-                            periodo
-                    );
-
-            YearMonth periodoLancamento =
+            YearMonth periodo =
                     YearMonth.from(
                             lancamento.getData()
                     );
 
-            return periodoSelecionado
-                    .equals(
-                            periodoLancamento
-                    );
-
-        } catch (Exception erro) {
-
-            return true;
-        }
-    }
-
-    private boolean filtrarBusca(
-            Lancamento lancamento,
-            String busca) {
-
-        if (busca == null
-                || busca.isBlank()) {
-
-            return true;
+            grupos.computeIfAbsent(
+                    periodo,
+                    chave -> new ArrayList<>()
+            ).add(lancamento);
         }
 
-        String textoBusca =
-                busca.trim()
-                        .toLowerCase(
-                                Locale.ROOT
-                        );
+        List<GrupoLancamentos> resultado =
+                new ArrayList<>();
 
-        String descricao =
-                lancamento.getDescricao() == null
-                        ? ""
-                        : lancamento
-                        .getDescricao()
-                        .toLowerCase(
-                                Locale.ROOT
-                        );
+        for (Map.Entry<YearMonth, List<Lancamento>> entrada
+                : grupos.entrySet()) {
 
-        String categoria =
-                lancamento.getCategoria() == null
-                        ? ""
-                        : lancamento
-                        .getCategoria()
-                        .toLowerCase(
-                                Locale.ROOT
-                        );
+            resultado.add(
+                    new GrupoLancamentos(
+                            formatarPeriodo(
+                                    entrada.getKey()
+                            ),
+                            entrada.getValue()
+                    )
+            );
+        }
 
-        return descricao.contains(
-                textoBusca
-        )
-                || categoria.contains(
-                textoBusca
-        );
+        return resultado;
     }
 
-    private void prepararPagina(
+    private String formatarPeriodo(
+            YearMonth periodo) {
+
+        String mes =
+                periodo.getMonth()
+                        .getDisplayName(
+                                TextStyle.FULL,
+                                Locale.forLanguageTag("pt-BR")
+                        );
+
+        mes =
+                mes.substring(0, 1).toUpperCase()
+                        + mes.substring(1);
+
+        return mes + " de " + periodo.getYear();
+    }
+
+    // =========================
+    // FORMULÁRIO
+    // =========================
+
+    private void prepararFormulario(
             Model model,
             Lancamento lancamento,
-            List<Lancamento> lancamentos,
             String nomeUsuario,
-            boolean modoEdicao,
-            String periodo,
-            String responsavel,
-            TipoLancamento tipo,
-            String busca) {
+            boolean modoEdicao) {
 
         String periodoLancamento;
 
         if (lancamento.getData() != null) {
 
             periodoLancamento =
-                    YearMonth.from(
-                            lancamento.getData()
-                    ).toString();
+                    YearMonth
+                            .from(
+                                    lancamento.getData()
+                            )
+                            .toString();
 
         } else {
 
@@ -440,11 +406,6 @@ public class LancamentoController {
                     YearMonth.now()
                             .toString();
         }
-
-        model.addAttribute(
-                "lancamentos",
-                lancamentos
-        );
 
         model.addAttribute(
                 "lancamento",
@@ -457,55 +418,54 @@ public class LancamentoController {
         );
 
         model.addAttribute(
-                "modoEdicao",
-                modoEdicao
+                "nomeUsuario",
+                nomeUsuario
         );
 
         model.addAttribute(
-                "nomeUsuario",
-                nomeUsuario
+                "modoEdicao",
+                modoEdicao
         );
 
         model.addAttribute(
                 "periodoLancamento",
                 periodoLancamento
         );
-
-        model.addAttribute(
-                "periodoSelecionado",
-                periodo
-        );
-
-        model.addAttribute(
-                "responsavelSelecionado",
-                responsavel
-        );
-
-        model.addAttribute(
-                "tipoSelecionado",
-                tipo
-        );
-
-        model.addAttribute(
-                "busca",
-                busca
-        );
-
-        model.addAttribute(
-                "quantidadeResultados",
-                lancamentos.size()
-        );
     }
+
+    private void preencherCamposOpcionais(
+            Lancamento lancamento) {
+
+        if (lancamento.getDescricao() == null
+                || lancamento.getDescricao().isBlank()) {
+
+            lancamento.setDescricao(
+                    lancamento.getTipo()
+                            .getDescricao()
+            );
+        }
+
+        if (lancamento.getCategoria() == null
+                || lancamento.getCategoria().isBlank()) {
+
+            lancamento.setCategoria(
+                    lancamento.getTipo()
+                            .getDescricao()
+            );
+        }
+    }
+
+    // =========================
+    // SEGURANÇA
+    // =========================
 
     private void verificarDono(
             Lancamento lancamento,
             String nomeUsuario) {
 
-        if (!lancamento
-                .getResponsavel()
-                .equalsIgnoreCase(
-                        nomeUsuario
-                )) {
+        if (!nomeUsuario.equalsIgnoreCase(
+                lancamento.getResponsavel()
+        )) {
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -529,5 +489,31 @@ public class LancamentoController {
                 + usuario
                 .substring(1)
                 .toLowerCase();
+    }
+
+    // =========================
+    // GRUPO DE LANÇAMENTOS
+    // =========================
+
+    public static class GrupoLancamentos {
+
+        private final String titulo;
+        private final List<Lancamento> lancamentos;
+
+        public GrupoLancamentos(
+                String titulo,
+                List<Lancamento> lancamentos) {
+
+            this.titulo = titulo;
+            this.lancamentos = lancamentos;
+        }
+
+        public String getTitulo() {
+            return titulo;
+        }
+
+        public List<Lancamento> getLancamentos() {
+            return lancamentos;
+        }
     }
 }
