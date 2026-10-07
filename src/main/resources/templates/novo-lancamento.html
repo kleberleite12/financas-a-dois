@@ -30,6 +30,7 @@
                 FINANÇAS A DOIS
             </span>
 
+
             <h1 th:text="${modoEdicao}
                     ? 'Editar lançamento'
                     : 'Novo lançamento'">
@@ -38,9 +39,11 @@
 
             </h1>
 
+
             <p th:if="${!modoEdicao}">
                 Registre uma nova movimentação financeira.
             </p>
+
 
             <p th:if="${modoEdicao}">
                 Altere as informações do lançamento.
@@ -65,6 +68,7 @@
             SEUS LANÇAMENTOS
         </a>
 
+
         <a class="botao-principal"
            th:if="${!modoEdicao}"
            th:href="@{/lancamentos/novo}">
@@ -77,6 +81,7 @@
     <main>
 
         <section class="formulario">
+
 
             <h2 th:text="${modoEdicao}
                     ? 'Editar lançamento'
@@ -97,7 +102,19 @@
 
             </p>
 
+
             <br>
+
+
+            <!-- MENSAGEM DE ERRO DO SERVIDOR -->
+
+            <div class="mensagem erro"
+                 th:if="${mensagemErro}"
+                 th:text="${mensagemErro}">
+
+                Ocorreu um erro.
+
+            </div>
 
 
             <form th:action="@{/lancamentos}"
@@ -119,7 +136,8 @@
 
                     <input type="number"
                            step="0.01"
-                           min="0"
+                           min="0.01"
+                           max="99999999.99"
                            th:field="*{valor}"
                            required>
 
@@ -138,8 +156,8 @@
                            name="periodoLancamento"
                            th:value="${periodoLancamento}"
                            onclick="if (this.showPicker) this.showPicker();"
-                           required
-                           style="cursor: pointer;">
+                           style="cursor: pointer;"
+                           required>
 
                 </div>
 
@@ -159,6 +177,7 @@
                             Selecione
                         </option>
 
+
                         <option
                                 th:each="tipo : ${tipos}"
                                 th:value="${tipo}"
@@ -175,12 +194,19 @@
                 <div class="campo">
 
                     <label>
+
                         Descrição
-                        <small>(opcional)</small>
+
+                        <small>
+                            (opcional)
+                        </small>
+
                     </label>
+
 
                     <input type="text"
                            th:field="*{descricao}"
+                           maxlength="255"
                            placeholder="Ex.: Uber, Carrefour, Freelance...">
 
                 </div>
@@ -191,18 +217,25 @@
                 <div class="campo">
 
                     <label>
+
                         Categoria
-                        <small>(opcional)</small>
+
+                        <small>
+                            (opcional)
+                        </small>
+
                     </label>
+
 
                     <input type="text"
                            th:field="*{categoria}"
+                           maxlength="255"
                            placeholder="Ex.: Transporte, Mercado, Alimentação...">
 
                 </div>
 
 
-                <!-- BOTÕES -->
+                <!-- SALVAR -->
 
                 <button class="botao-principal"
                         type="submit"
@@ -215,11 +248,16 @@
                 </button>
 
 
+                <!-- CANCELAR EDIÇÃO -->
+
                 <a th:if="${modoEdicao}"
                    class="botao"
                    th:href="@{/lancamentos}">
+
                     Cancelar
+
                 </a>
+
 
             </form>
 

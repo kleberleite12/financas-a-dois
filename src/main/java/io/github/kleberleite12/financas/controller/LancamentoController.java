@@ -29,6 +29,9 @@ public class LancamentoController {
 
     private final LancamentoRepository lancamentoRepository;
 
+    private static final BigDecimal VALOR_MAXIMO =
+            new BigDecimal("99999999.99");
+
     private static final List<TipoLancamento> TIPOS_ATIVOS = List.of(
             TipoLancamento.RENDA_PRINCIPAL,
             TipoLancamento.RENDA_EXTRA,
@@ -42,6 +45,7 @@ public class LancamentoController {
 
         this.lancamentoRepository = lancamentoRepository;
     }
+
 
     // =========================================
     // SEUS LANÇAMENTOS
@@ -76,8 +80,6 @@ public class LancamentoController {
                         : nomeUsuario;
 
 
-        // Todos os lançamentos da pessoa escolhida
-
         List<Lancamento> lancamentos =
                 lancamentoRepository.findAll(
                                 Sort.by(
@@ -95,7 +97,7 @@ public class LancamentoController {
 
 
         // =========================================
-        // FILTRO PELOS CARDS DO MÊS
+        // FILTRO RECEITAS / GASTOS / GUARDADO
         // =========================================
 
         boolean filtroAtivo =
@@ -111,9 +113,10 @@ public class LancamentoController {
 
         String periodoFiltroFormatado = "";
 
-        String totalFiltro = formatarMoeda(
-                BigDecimal.ZERO
-        );
+        String totalFiltro =
+                formatarMoeda(
+                        BigDecimal.ZERO
+                );
 
 
         if (filtroAtivo) {
@@ -155,18 +158,15 @@ public class LancamentoController {
 
                 if ("receitas".equalsIgnoreCase(resumo)) {
 
-                    tituloFiltro =
-                            "Receitas";
+                    tituloFiltro = "Receitas";
 
                 } else if ("gastos".equalsIgnoreCase(resumo)) {
 
-                    tituloFiltro =
-                            "Gastos";
+                    tituloFiltro = "Gastos";
 
                 } else if ("guardado".equalsIgnoreCase(resumo)) {
 
-                    tituloFiltro =
-                            "Guardado";
+                    tituloFiltro = "Guardado";
 
                 } else {
 
@@ -195,10 +195,6 @@ public class LancamentoController {
             }
         }
 
-
-        // =========================================
-        // VISÃO NORMAL AGRUPADA POR MÊS
-        // =========================================
 
         List<GrupoLancamentos> gruposLancamentos =
                 agruparPorMes(
@@ -358,8 +354,9 @@ public class LancamentoController {
     @PostMapping("/lancamentos")
     public String salvar(
             Lancamento lancamento,
-            @RequestParam String periodoLancamento,
-            Authentication authentication) {
+            @RequestParam(required = false) String periodoLancamento,
+            Authentication authentication,
+            Model model) {
 
         String nomeUsuario =
                 formatarNomeUsuario(
@@ -367,40 +364,18 @@ public class LancamentoController {
                 );
 
 
-        try {
+        /*
+         * Se for edição, primeiro confirmamos se o
+         * lançamento realmente pertence ao usuário.
+         *
+         * Isso acontece ANTES de qualquer alteração.
+         */
 
-            YearMonth periodo =
-                    YearMonth.parse(
-                            periodoLancamento
-                    );
+        Lancamento existente = null;
 
-            lancamento.setData(
-                    periodo.atDay(1)
-            );
+        if (lancamento.getId() != null) {
 
-        } catch (Exception erro) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Mês e ano inválidos."
-            );
-        }
-
-
-        preencherCamposOpcionais(
-                lancamento
-        );
-
-
-        if (lancamento.getId() == null) {
-
-            lancamento.setResponsavel(
-                    nomeUsuario
-            );
-
-        } else {
-
-            Lancamento existente =
+            existente =
                     lancamentoRepository
                             .findById(
                                     lancamento.getId()
@@ -416,6 +391,78 @@ public class LancamentoController {
                     existente,
                     nomeUsuario
             );
+        }
+
+
+        // =========================================
+        // VALIDAÇÃO NO SERVIDOR
+        // =========================================
+
+        String erroValidacao =
+                validarLancamento(
+                        lancamento,
+                        periodoLancamento
+                );
+
+
+        if (erroValidacao != null) {
+
+            prepararFormularioComErro(
+                    model,
+                    lancamento,
+                    nomeUsuario,
+                    periodoLancamento,
+                    erroValidacao
+            );
+
+            return "novo-lancamento";
+        }
+
+
+        // =========================================
+        // PERÍODO
+        // =========================================
+
+        YearMonth periodo =
+                YearMonth.parse(
+                        periodoLancamento
+                );
+
+        lancamento.setData(
+                periodo.atDay(1)
+        );
+
+
+        // =========================================
+        // DESCRIÇÃO / CATEGORIA
+        // =========================================
+
+        preencherCamposOpcionais(
+                lancamento
+        );
+
+
+        // =========================================
+        // RESPONSÁVEL
+        // =========================================
+
+        if (existente == null) {
+
+            /*
+             * Novo lançamento:
+             * sempre pertence ao usuário autenticado.
+             */
+
+            lancamento.setResponsavel(
+                    nomeUsuario
+            );
+
+        } else {
+
+            /*
+             * Edição:
+             * preservamos o responsável original.
+             */
 
             lancamento.setResponsavel(
                     existente.getResponsavel()
@@ -469,7 +516,153 @@ public class LancamentoController {
 
 
     // =========================================
-    // FILTRO DOS CARDS
+    // VALIDAÇÃO
+    // =========================================
+
+    private String validarLancamento(
+            Lancamento lancamento,
+            String periodoLancamento) {
+
+        // Valor obrigatório
+
+        if (lancamento.getValor() == null) {
+
+            return "Informe o valor do lançamento.";
+        }
+
+
+        // Não permite zero nem valor negativo
+
+        if (lancamento
+                .getValor()
+                .compareTo(BigDecimal.ZERO) <= 0) {
+
+            return "O valor deve ser maior que zero.";
+        }
+
+
+        // Evita valor maior que o suportado pelo banco
+
+        if (lancamento
+                .getValor()
+                .compareTo(VALOR_MAXIMO) > 0) {
+
+            return "O valor informado é muito alto.";
+        }
+
+
+        // Apenas duas casas decimais
+
+        BigDecimal valorNormalizado =
+                lancamento
+                        .getValor()
+                        .stripTrailingZeros();
+
+        if (valorNormalizado.scale() > 2) {
+
+            return "O valor pode ter no máximo duas casas decimais.";
+        }
+
+
+        // Tipo obrigatório
+
+        if (lancamento.getTipo() == null) {
+
+            return "Selecione o tipo do lançamento.";
+        }
+
+
+        // Impede envio manual de tipos que não existem mais na tela
+
+        if (!TIPOS_ATIVOS.contains(
+                lancamento.getTipo()
+        )) {
+
+            return "Tipo de lançamento inválido.";
+        }
+
+
+        // Período obrigatório
+
+        if (periodoLancamento == null
+                || periodoLancamento.isBlank()) {
+
+            return "Informe o mês e o ano.";
+        }
+
+
+        // Período precisa estar no formato correto
+
+        try {
+
+            YearMonth.parse(
+                    periodoLancamento
+            );
+
+        } catch (Exception erro) {
+
+            return "Mês e ano inválidos.";
+        }
+
+
+        // Descrição: máximo 255 caracteres
+
+        if (lancamento.getDescricao() != null
+                && lancamento.getDescricao().length() > 255) {
+
+            return "A descrição pode ter no máximo 255 caracteres.";
+        }
+
+
+        // Categoria: máximo 255 caracteres
+
+        if (lancamento.getCategoria() != null
+                && lancamento.getCategoria().length() > 255) {
+
+            return "A categoria pode ter no máximo 255 caracteres.";
+        }
+
+
+        return null;
+    }
+
+
+    private void prepararFormularioComErro(
+            Model model,
+            Lancamento lancamento,
+            String nomeUsuario,
+            String periodoLancamento,
+            String mensagemErro) {
+
+        boolean modoEdicao =
+                lancamento.getId() != null;
+
+        prepararFormulario(
+                model,
+                lancamento,
+                nomeUsuario,
+                modoEdicao
+        );
+
+
+        if (periodoLancamento != null) {
+
+            model.addAttribute(
+                    "periodoLancamento",
+                    periodoLancamento
+            );
+        }
+
+
+        model.addAttribute(
+                "mensagemErro",
+                mensagemErro
+        );
+    }
+
+
+    // =========================================
+    // FILTROS RÁPIDOS
     // =========================================
 
     private boolean pertenceAoResumo(
@@ -541,6 +734,7 @@ public class LancamentoController {
             List<Lancamento> lancamentosMes =
                     entrada.getValue();
 
+
             BigDecimal receitas =
                     calcularReceitas(
                             lancamentosMes
@@ -586,9 +780,14 @@ public class LancamentoController {
                     TipoLancamento tipo =
                             lancamento.getTipo();
 
-                    return tipo == TipoLancamento.RENDA_PRINCIPAL
-                            || tipo == TipoLancamento.RENDA_EXTRA
-                            || tipo == TipoLancamento.RECEITA;
+                    return tipo
+                            == TipoLancamento.RENDA_PRINCIPAL
+
+                            || tipo
+                            == TipoLancamento.RENDA_EXTRA
+
+                            || tipo
+                            == TipoLancamento.RECEITA;
                 })
 
                 .map(
@@ -612,9 +811,14 @@ public class LancamentoController {
                     TipoLancamento tipo =
                             lancamento.getTipo();
 
-                    return tipo == TipoLancamento.CARTAO_CREDITO
-                            || tipo == TipoLancamento.OUTRO_GASTO
-                            || tipo == TipoLancamento.GASTO;
+                    return tipo
+                            == TipoLancamento.CARTAO_CREDITO
+
+                            || tipo
+                            == TipoLancamento.OUTRO_GASTO
+
+                            || tipo
+                            == TipoLancamento.GASTO;
                 })
 
                 .map(
@@ -751,8 +955,17 @@ public class LancamentoController {
                 || lancamento.getDescricao().isBlank()) {
 
             lancamento.setDescricao(
-                    lancamento.getTipo()
+                    lancamento
+                            .getTipo()
                             .getDescricao()
+            );
+
+        } else {
+
+            lancamento.setDescricao(
+                    lancamento
+                            .getDescricao()
+                            .trim()
             );
         }
 
@@ -761,8 +974,17 @@ public class LancamentoController {
                 || lancamento.getCategoria().isBlank()) {
 
             lancamento.setCategoria(
-                    lancamento.getTipo()
+                    lancamento
+                            .getTipo()
                             .getDescricao()
+            );
+
+        } else {
+
+            lancamento.setCategoria(
+                    lancamento
+                            .getCategoria()
+                            .trim()
             );
         }
     }
