@@ -38,11 +38,16 @@
 
             </h1>
 
-            <p>
+            <p th:if="${!modoEdicao}">
                 Registre uma nova movimentação financeira.
             </p>
 
+            <p th:if="${modoEdicao}">
+                Altere as informações do lançamento.
+            </p>
+
         </div>
+
 
         <a class="botao"
            th:href="@{/}">
@@ -61,6 +66,7 @@
         </a>
 
         <a class="botao-principal"
+           th:if="${!modoEdicao}"
            th:href="@{/lancamentos/novo}">
             + NOVO LANÇAMENTO
         </a>
@@ -103,6 +109,8 @@
                        th:field="*{id}">
 
 
+                <!-- VALOR -->
+
                 <div class="campo">
 
                     <label>
@@ -118,6 +126,8 @@
                 </div>
 
 
+                <!-- MÊS E ANO -->
+
                 <div class="campo">
 
                     <label>
@@ -127,10 +137,14 @@
                     <input type="month"
                            name="periodoLancamento"
                            th:value="${periodoLancamento}"
-                           required>
+                           onclick="if (this.showPicker) this.showPicker();"
+                           required
+                           style="cursor: pointer;">
 
                 </div>
 
+
+                <!-- TIPO -->
 
                 <div class="campo">
 
@@ -156,6 +170,8 @@
                 </div>
 
 
+                <!-- DESCRIÇÃO -->
+
                 <div class="campo">
 
                     <label>
@@ -169,6 +185,8 @@
 
                 </div>
 
+
+                <!-- CATEGORIA -->
 
                 <div class="campo">
 
@@ -184,6 +202,8 @@
                 </div>
 
 
+                <!-- BOTÕES -->
+
                 <button class="botao-principal"
                         type="submit"
                         th:text="${modoEdicao}
@@ -198,9 +218,7 @@
                 <a th:if="${modoEdicao}"
                    class="botao"
                    th:href="@{/lancamentos}">
-
                     Cancelar
-
                 </a>
 
             </form>

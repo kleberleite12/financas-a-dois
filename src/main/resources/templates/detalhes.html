@@ -33,6 +33,7 @@
             </h1>
 
             <p>
+
                 <span th:text="${responsavel}">
                     Usuário
                 </span>
@@ -46,6 +47,7 @@
                 <span th:text="${ano}">
                     2026
                 </span>
+
             </p>
 
         </div>
@@ -95,9 +97,13 @@
                 <thead>
 
                 <tr>
+
                     <th>Descrição</th>
+
                     <th>Categoria</th>
+
                     <th>Valor</th>
+
                 </tr>
 
                 </thead>
@@ -113,7 +119,14 @@
                     <td th:text="${item.categoria}">
                     </td>
 
-                    <td th:text="'R$ ' + ${item.valor}">
+                    <td th:text="'R$ ' + ${#numbers.formatDecimal(
+                        item.valor,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}">
+                        R$ 0,00
                     </td>
 
                 </tr>

@@ -258,7 +258,14 @@
                     </td>
 
 
-                    <td th:text="'R$ ' + ${item.valor}">
+                    <td th:text="|R$ ${#numbers.formatDecimal(
+                        item.valor,
+                        1,
+                        'POINT',
+                        2,
+                        'COMMA'
+                    )}|">
+                        R$ 0,00
                     </td>
 
 
@@ -364,7 +371,9 @@
             </section>
 
 
+            <!-- ====================================== -->
             <!-- MESES -->
+            <!-- ====================================== -->
 
             <div th:if="${!gruposLancamentos.isEmpty()}">
 
@@ -410,7 +419,7 @@
 
 
                     <!-- ====================================== -->
-                    <!-- CARDS CLICÁVEIS -->
+                    <!-- RECEITAS / GASTOS / GUARDADO -->
                     <!-- ====================================== -->
 
                     <div style="
@@ -584,7 +593,14 @@
                             </td>
 
 
-                            <td th:text="'R$ ' + ${item.valor}">
+                            <td th:text="|R$ ${#numbers.formatDecimal(
+                                item.valor,
+                                1,
+                                'POINT',
+                                2,
+                                'COMMA'
+                            )}|">
+                                R$ 0,00
                             </td>
 
 
@@ -639,7 +655,9 @@
             </div>
 
 
+            <!-- ====================================== -->
             <!-- NENHUM LANÇAMENTO -->
+            <!-- ====================================== -->
 
             <div th:if="${gruposLancamentos.isEmpty()}"
                  class="tabela-container"
