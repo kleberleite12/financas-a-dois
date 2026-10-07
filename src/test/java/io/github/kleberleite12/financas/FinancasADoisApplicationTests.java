@@ -1,10 +1,9 @@
 package io.github.kleberleite12.financas;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import io.github.kleberleite12.financas.support.WebIntegrationTest;
 
-@SpringBootTest
-class FinancasADoisApplicationTests {
+class FinancasADoisApplicationTests extends WebIntegrationTest {
 
 	@Test
 	void contextLoads() {

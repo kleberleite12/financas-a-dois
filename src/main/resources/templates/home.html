@@ -399,7 +399,7 @@
 
                         <p>
 
-                            <strong th:text="${kleberPercentualMeta} + '%'">
+                            <strong th:text="${#numbers.formatDecimal(kleberPercentualMeta, 1, 'POINT', 1, 'COMMA')} + '%'">
                                 0%
                             </strong>
 
@@ -600,7 +600,7 @@
 
                         <p>
 
-                            <strong th:text="${giovannaPercentualMeta} + '%'">
+                            <strong th:text="${#numbers.formatDecimal(giovannaPercentualMeta, 1, 'POINT', 1, 'COMMA')} + '%'">
                                 0%
                             </strong>
 

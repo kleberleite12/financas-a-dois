@@ -4,14 +4,17 @@ import io.github.kleberleite12.financas.model.Lancamento;
 import io.github.kleberleite12.financas.model.TipoLancamento;
 import io.github.kleberleite12.financas.repository.LancamentoRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -34,8 +37,13 @@ public class DetalheController {
             @RequestParam TipoLancamento tipo,
             Model model) {
 
-        YearMonth periodoSelecionado =
-                YearMonth.parse(periodo);
+        YearMonth periodoSelecionado;
+        try {
+            periodoSelecionado = YearMonth.parse(periodo);
+        } catch (DateTimeParseException erro) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Mês e ano inválidos.", erro);
+        }
 
         List<Lancamento> lancamentos =
                 lancamentoRepository.findAll(
