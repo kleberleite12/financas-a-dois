@@ -4,10 +4,15 @@
     padding: 0;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #f5f7fb;
     color: #18212f;
+    overflow-x: hidden;
 }
 
 .container {
@@ -17,7 +22,9 @@ body {
 }
 
 
-/* TOPO */
+/* =========================================
+   TOPO
+   ========================================= */
 
 .topo {
     display: flex;
@@ -49,10 +56,13 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 
-/* BOTÕES */
+/* =========================================
+   BOTÕES
+   ========================================= */
 
 .botao-principal,
 .botao {
@@ -67,6 +77,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: 0.2s;
+    text-align: center;
 }
 
 .botao-sair {
@@ -88,7 +99,9 @@ body {
 }
 
 
-/* SELETOR DE MÊS */
+/* =========================================
+   SELETOR DE MÊS
+   ========================================= */
 
 .seletor-mes {
     display: flex;
@@ -101,6 +114,7 @@ body {
 .botao-mes {
     width: 44px;
     height: 44px;
+    min-width: 44px;
     border-radius: 12px;
     display: flex;
     justify-content: center;
@@ -142,7 +156,9 @@ body {
 }
 
 
-/* PAINEL DO MÊS */
+/* =========================================
+   PAINEL DO MÊS
+   ========================================= */
 
 .painel-mes {
     background: #18212f;
@@ -218,7 +234,9 @@ body {
 }
 
 
-/* CARDS */
+/* =========================================
+   CARDS
+   ========================================= */
 
 .destaques {
     display: grid;
@@ -292,7 +310,9 @@ body {
 }
 
 
-/* SEÇÕES */
+/* =========================================
+   SEÇÕES
+   ========================================= */
 
 .secao {
     margin-bottom: 50px;
@@ -313,7 +333,9 @@ body {
 }
 
 
-/* PESSOAS */
+/* =========================================
+   PESSOAS / META
+   ========================================= */
 
 .pessoa {
     padding: 22px;
@@ -333,8 +355,14 @@ body {
     font-size: 21px;
 }
 
+progress {
+    max-width: 100%;
+}
 
-/* FORMULÁRIO */
+
+/* =========================================
+   FORMULÁRIOS
+   ========================================= */
 
 .formulario {
     background: white;
@@ -363,15 +391,18 @@ body {
 .campo input,
 .campo select {
     width: 100%;
+    min-height: 44px;
     padding: 11px 12px;
     border: 1px solid #d7dde6;
     border-radius: 9px;
-    font-size: 15px;
+    font-size: 16px;
     background: white;
 }
 
 
-/* TABELA */
+/* =========================================
+   TABELAS
+   ========================================= */
 
 .tabela-container {
     background: white;
@@ -380,6 +411,7 @@ body {
     border: 1px solid #e9edf3;
     box-shadow: 0 5px 18px rgba(30, 41, 59, 0.06);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tabela-container h2 {
@@ -405,7 +437,153 @@ th {
 }
 
 
-/* LOGIN */
+/* =========================================
+   TELA DE LANÇAMENTOS
+   ========================================= */
+
+.navegacao-lancamentos {
+    margin-bottom: 30px;
+}
+
+.botao-voltar {
+    margin-bottom: 25px;
+}
+
+.cabecalho-filtro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.descricao-filtro {
+    color: #7a8494;
+    margin-top: 5px;
+}
+
+.total-filtro {
+    background: #f5f7fb;
+    padding: 14px 20px;
+    border-radius: 12px;
+}
+
+.total-filtro span {
+    display: block;
+    color: #7a8494;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.total-filtro strong {
+    font-size: 22px;
+}
+
+.estado-vazio {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.estado-vazio-grande {
+    padding: 50px 20px;
+}
+
+.grupo-mes {
+    margin-bottom: 20px;
+}
+
+.resumo-mes-cabecalho {
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+.resumo-mes-cabecalho > strong {
+    font-size: 19px;
+}
+
+.resumo-mes-cabecalho > span {
+    display: block;
+    color: #7a8494;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.resumo-lancamentos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 22px;
+    margin-bottom: 25px;
+}
+
+.resumo-financeiro {
+    padding: 14px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.resumo-financeiro span {
+    display: block;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.resumo-financeiro strong {
+    font-size: 20px;
+}
+
+.receita-resumo {
+    background: #eefaf5;
+}
+
+.receita-resumo span {
+    color: #67756e;
+}
+
+.gasto-resumo {
+    background: #fff2f2;
+}
+
+.gasto-resumo span {
+    color: #7c6969;
+}
+
+.guardado-resumo {
+    background: #f4f1ff;
+}
+
+.guardado-resumo span {
+    color: #716b82;
+}
+
+.acoes-lancamento form {
+    display: inline;
+}
+
+
+/* =========================================
+   TELA DE DETALHES
+   ========================================= */
+
+.detalhes-total {
+    grid-template-columns: 1fr;
+}
+
+.detalhes-total .card {
+    width: 100%;
+}
+
+.tabela-detalhes td:last-child {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+
+/* =========================================
+   LOGIN
+   ========================================= */
 
 .pagina-login {
     min-height: 100vh;
@@ -446,9 +624,10 @@ th {
     border: none;
     border-radius: 10px;
     padding: 13px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    min-height: 46px;
 }
 
 .login-rodape {
@@ -459,7 +638,9 @@ th {
 }
 
 
-/* RESPONSIVIDADE */
+/* =========================================
+   TABLET
+   ========================================= */
 
 @media (max-width: 900px) {
 
@@ -471,38 +652,486 @@ th {
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .resumo-lancamentos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .detalhes-total {
+        grid-template-columns: 1fr;
+    }
 }
+
+
+/* =========================================
+   CELULAR
+   ========================================= */
 
 @media (max-width: 650px) {
 
     .container {
-        padding-top: 25px;
+        width: 94%;
+        padding-top: 22px;
+        padding-bottom: 45px;
     }
+
+
+    /* TOPO */
 
     .topo {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .topo h1 {
+        font-size: 26px;
+        line-height: 1.15;
+    }
+
+    .topo > .botao,
+    .topo > .botao-principal {
+        width: 100%;
     }
 
     .acoes-topo {
         width: 100%;
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .botao-principal {
+    .acoes-topo > a,
+    .acoes-topo > form {
+        width: 100%;
+    }
+
+    .acoes-topo .botao,
+    .acoes-topo .botao-principal,
+    .acoes-topo .botao-sair {
+        width: 100%;
+    }
+
+    .botao,
+    .botao-principal,
+    .botao-sair {
+        min-height: 44px;
+    }
+
+
+    /* SELETOR DE MÊS */
+
+    .seletor-mes {
+        gap: 10px;
+        margin-bottom: 28px;
+    }
+
+    .mes-atual {
+        min-width: 0;
         flex: 1;
-        text-align: center;
     }
 
-    .topo h1 {
-        font-size: 27px;
+    .mes-atual strong,
+    .mes-atual strong span {
+        font-size: 18px;
+    }
+
+
+    /* PAINEL */
+
+    .painel-mes {
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 35px;
+    }
+
+    .painel-mes-titulo h2 {
+        font-size: 22px;
+        line-height: 1.2;
     }
 
     .painel-mes-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 20px;
     }
+
+    .resumo-mes-item,
+    .disponivel-agora {
+        padding: 17px;
+    }
+
+    .disponivel-agora strong {
+        font-size: 27px;
+    }
+
+
+    /* CARDS */
 
     .destaques {
         grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .destaque {
+        padding: 20px;
+    }
+
+    .destaque strong {
+        font-size: 23px;
+    }
+
+    .secao {
+        margin-bottom: 35px;
+    }
+
+    .pessoa {
+        padding: 18px;
+    }
+
+
+    /* FORMULÁRIOS */
+
+    .formulario {
+        padding: 20px 16px;
+    }
+
+
+    /* RESUMOS DOS LANÇAMENTOS */
+
+    .resumo-lancamentos {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 18px;
+        margin-bottom: 20px;
+    }
+
+    .resumo-financeiro {
+        padding: 15px 16px;
+    }
+
+    .resumo-financeiro strong {
+        font-size: 20px;
+    }
+
+
+    /* CONTAINERS */
+
+    .tabela-container {
+        padding: 18px 14px;
+        border-radius: 13px;
+    }
+
+
+    /* =====================================
+       LANÇAMENTOS NO CELULAR
+       ===================================== */
+
+    .tabela-lancamentos {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .tabela-lancamentos thead {
+        display: none;
+    }
+
+    .tabela-lancamentos tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .tabela-lancamentos tr {
+        display: block;
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 3px 10px rgba(30, 41, 59, 0.05);
+    }
+
+    .tabela-lancamentos td:nth-child(1) {
+        display: block;
+        width: 100%;
+        padding: 0 0 5px;
+        border: none;
+        text-align: left;
+        font-size: 18px;
+        font-weight: bold;
+        color: #18212f;
+    }
+
+    .tabela-lancamentos td:nth-child(2) {
+        display: block;
+        width: 100%;
+        padding: 0 0 14px;
+        border-bottom: 1px solid #edf0f4;
+        text-align: left;
+        font-size: 21px;
+        font-weight: bold;
+        color: #18212f;
+    }
+
+    .tabela-lancamentos td:nth-child(3) {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        gap: 20px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf0f4;
+        text-align: right;
+    }
+
+    .tabela-lancamentos td:nth-child(3)::before {
+        content: "Tipo";
+        flex-shrink: 0;
+        font-weight: bold;
+        color: #737d8c;
+    }
+
+    .tabela-lancamentos td:nth-child(4) {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        gap: 20px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf0f4;
+        text-align: right;
+    }
+
+    .tabela-lancamentos td:nth-child(4)::before {
+        content: "Categoria";
+        flex-shrink: 0;
+        font-weight: bold;
+        color: #737d8c;
+    }
+
+    .tabela-lancamentos td:nth-child(5) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        gap: 10px;
+        padding: 14px 0 0;
+        border: none;
+    }
+
+    .tabela-lancamentos td:nth-child(5) .botao {
+        width: 100%;
+    }
+
+    .tabela-lancamentos td:nth-child(5) form {
+        width: 100%;
+        display: block;
+    }
+
+    .tabela-lancamentos td:nth-child(5) form button {
+        width: 100%;
+    }
+
+    .tabela-container:has(.tabela-lancamentos) {
+        overflow-x: visible;
+    }
+
+
+    /* FILTROS */
+
+    .cabecalho-filtro {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .total-filtro {
+        width: 100%;
+    }
+
+    .botao-voltar {
+        width: 100%;
+    }
+
+
+    /* =====================================
+       DETALHES NO CELULAR
+       ===================================== */
+
+    .detalhes-container {
+        overflow-x: visible;
+    }
+
+    .detalhes-container h2 {
+        font-size: 22px;
+        margin-bottom: 18px;
+    }
+
+    .tabela-detalhes {
+        display: block;
+        width: 100%;
+    }
+
+    .tabela-detalhes thead {
+        display: none;
+    }
+
+    .tabela-detalhes tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .tabela-detalhes tr {
+        display: block;
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e4e9f0;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 3px 10px rgba(30, 41, 59, 0.05);
+    }
+
+    /*
+     * Descrição
+     */
+
+    .tabela-detalhes td:nth-child(1) {
+        display: block;
+        width: 100%;
+        border: none;
+        padding: 0 0 5px;
+        font-size: 17px;
+        font-weight: bold;
+        text-align: left;
+        color: #18212f;
+    }
+
+    /*
+     * Valor aparece logo abaixo da descrição,
+     * apesar de ser a terceira coluna no HTML.
+     */
+
+    .tabela-detalhes td:nth-child(3) {
+        display: block;
+        width: 100%;
+        border-bottom: 1px solid #edf0f4;
+        padding: 0 0 14px;
+        font-size: 21px;
+        font-weight: bold;
+        text-align: left;
+        color: #18212f;
+        white-space: nowrap;
+    }
+
+    /*
+     * Categoria
+     */
+
+    .tabela-detalhes td:nth-child(2) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 16px;
+        padding: 12px 0 0;
+        border: none;
+        text-align: right;
+    }
+
+    .tabela-detalhes td:nth-child(2)::before {
+        content: "Categoria";
+        flex-shrink: 0;
+        font-weight: bold;
+        color: #737d8c;
+    }
+
+    /*
+     * Reorganiza visualmente:
+     * descrição → valor → categoria.
+     */
+
+    .tabela-detalhes tr {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tabela-detalhes td:nth-child(1) {
+        order: 1;
+    }
+
+    .tabela-detalhes td:nth-child(3) {
+        order: 2;
+    }
+
+    .tabela-detalhes td:nth-child(2) {
+        order: 3;
+    }
+
+
+    /* LOGIN */
+
+    .login-card {
+        padding: 28px 20px;
+        border-radius: 15px;
+    }
+
+    .login-card h1 {
+        font-size: 26px;
+    }
+
+}
+
+
+/* =========================================
+   CELULARES PEQUENOS
+   ========================================= */
+
+@media (max-width: 390px) {
+
+    .container {
+        width: 95%;
+    }
+
+    .topo h1 {
+        font-size: 24px;
+    }
+
+    .botao-mes {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .mes-atual strong,
+    .mes-atual strong span {
+        font-size: 17px;
+    }
+
+    .painel-mes {
+        padding: 17px;
+    }
+
+    .disponivel-agora strong {
+        font-size: 25px;
+    }
+
+    .tabela-container {
+        padding: 15px 10px;
+    }
+
+    .tabela-lancamentos tr,
+    .tabela-detalhes tr {
+        padding: 14px;
+    }
+
+    .tabela-lancamentos td:nth-child(1),
+    .tabela-detalhes td:nth-child(1) {
+        font-size: 17px;
+    }
+
+    .tabela-lancamentos td:nth-child(2),
+    .tabela-detalhes td:nth-child(3) {
+        font-size: 20px;
     }
 
 }

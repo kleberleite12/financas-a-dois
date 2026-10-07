@@ -76,8 +76,7 @@
     <!-- NAVEGAÇÃO -->
     <!-- ====================================== -->
 
-    <nav class="acoes-topo"
-         style="margin-bottom: 30px;">
+    <nav class="acoes-topo navegacao-lancamentos">
 
 
         <a th:if="${visualizandoOutro}"
@@ -124,9 +123,8 @@
 
 
             <a th:if="${!visualizandoOutro}"
-               class="botao"
-               th:href="@{/lancamentos}"
-               style="margin-bottom: 25px;">
+               class="botao botao-voltar"
+               th:href="@{/lancamentos}">
 
                 ← VOLTAR PARA TODOS
 
@@ -134,23 +132,15 @@
 
 
             <a th:if="${visualizandoOutro}"
-               class="botao"
-               th:href="@{/lancamentos(visualizacao='outro')}"
-               style="margin-bottom: 25px;">
+               class="botao botao-voltar"
+               th:href="@{/lancamentos(visualizacao='outro')}">
 
                 ← VOLTAR PARA TODOS
 
             </a>
 
 
-            <div style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 20px;
-                flex-wrap: wrap;
-                margin-bottom: 25px;
-            ">
+            <div class="cabecalho-filtro">
 
                 <div>
 
@@ -175,41 +165,22 @@
                     </h2>
 
 
-                    <p style="
-                        color: #7a8494;
-                        margin-top: 5px;
-                    ">
-
+                    <p class="descricao-filtro">
                         Somente os lançamentos desta categoria.
-
                     </p>
 
                 </div>
 
 
-                <div style="
-                    background: #f5f7fb;
-                    padding: 14px 20px;
-                    border-radius: 12px;
-                ">
+                <div class="total-filtro">
 
-                    <span style="
-                        display: block;
-                        color: #7a8494;
-                        font-size: 12px;
-                        margin-bottom: 4px;
-                    ">
-
+                    <span>
                         TOTAL
-
                     </span>
 
 
-                    <strong style="font-size: 22px;"
-                            th:text="${totalFiltro}">
-
+                    <strong th:text="${totalFiltro}">
                         R$ 0,00
-
                     </strong>
 
                 </div>
@@ -217,7 +188,8 @@
             </div>
 
 
-            <table th:if="${!lancamentosFiltrados.isEmpty()}">
+            <table class="tabela-lancamentos"
+                   th:if="${!lancamentosFiltrados.isEmpty()}">
 
                 <thead>
 
@@ -265,7 +237,9 @@
                         2,
                         'COMMA'
                     )}|">
+
                         R$ 0,00
+
                     </td>
 
 
@@ -277,7 +251,8 @@
                     </td>
 
 
-                    <td th:if="${!visualizandoOutro}">
+                    <td th:if="${!visualizandoOutro}"
+                        class="acoes-lancamento">
 
 
                         <a class="botao"
@@ -291,7 +266,6 @@
                         <form
                                 th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
                                 method="post"
-                                style="display: inline;"
                                 onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
 
                             <button class="botao"
@@ -315,10 +289,7 @@
 
 
             <div th:if="${lancamentosFiltrados.isEmpty()}"
-                 style="
-                    text-align: center;
-                    padding: 40px 20px;
-                 ">
+                 class="estado-vazio">
 
                 Nenhum lançamento encontrado.
 
@@ -380,31 +351,19 @@
 
                 <details
                         th:each="grupo, status : ${gruposLancamentos}"
-                        class="tabela-container"
-                        th:attr="open=${status.first} ? 'open' : null"
-                        style="margin-bottom: 20px;">
+                        class="tabela-container grupo-mes"
+                        th:attr="open=${status.first} ? 'open' : null">
 
 
-                    <summary style="
-                        cursor: pointer;
-                        padding: 8px 0;
-                    ">
+                    <summary class="resumo-mes-cabecalho">
 
 
-                        <strong style="font-size: 19px;"
-                                th:text="${grupo.titulo}">
-
+                        <strong th:text="${grupo.titulo}">
                             Novembro de 2026
-
                         </strong>
 
 
-                        <span style="
-                            display: block;
-                            color: #7a8494;
-                            font-size: 13px;
-                            margin-top: 4px;
-                        ">
+                        <span>
 
                             <span th:text="${grupo.lancamentos.size()}">
                                 0
@@ -422,48 +381,25 @@
                     <!-- RECEITAS / GASTOS / GUARDADO -->
                     <!-- ====================================== -->
 
-                    <div style="
-                        display: grid;
-                        grid-template-columns: repeat(3, 1fr);
-                        gap: 12px;
-                        margin-top: 22px;
-                        margin-bottom: 25px;
-                    ">
+                    <div class="resumo-lancamentos">
 
 
                         <!-- RECEITAS -->
 
-                        <a class="card-link"
+                        <a class="card-link resumo-financeiro receita-resumo"
                            th:href="@{/lancamentos(
                                 periodo=${grupo.periodo},
                                 resumo='receitas',
                                 visualizacao=${visualizandoOutro ? 'outro' : null}
-                           )}"
-                           style="
-                                background: #eefaf5;
-                                padding: 14px 16px;
-                                border-radius: 12px;
-                                text-decoration: none;
-                                color: inherit;
-                           ">
+                           )}">
 
-                            <span style="
-                                display: block;
-                                font-size: 11px;
-                                color: #67756e;
-                                margin-bottom: 5px;
-                            ">
-
+                            <span>
                                 RECEITAS
-
                             </span>
 
 
-                            <strong style="font-size: 20px;"
-                                    th:text="${grupo.receitas}">
-
+                            <strong th:text="${grupo.receitas}">
                                 R$ 0,00
-
                             </strong>
 
                         </a>
@@ -471,37 +407,20 @@
 
                         <!-- GASTOS -->
 
-                        <a class="card-link"
+                        <a class="card-link resumo-financeiro gasto-resumo"
                            th:href="@{/lancamentos(
                                 periodo=${grupo.periodo},
                                 resumo='gastos',
                                 visualizacao=${visualizandoOutro ? 'outro' : null}
-                           )}"
-                           style="
-                                background: #fff2f2;
-                                padding: 14px 16px;
-                                border-radius: 12px;
-                                text-decoration: none;
-                                color: inherit;
-                           ">
+                           )}">
 
-                            <span style="
-                                display: block;
-                                font-size: 11px;
-                                color: #7c6969;
-                                margin-bottom: 5px;
-                            ">
-
+                            <span>
                                 GASTOS
-
                             </span>
 
 
-                            <strong style="font-size: 20px;"
-                                    th:text="${grupo.gastos}">
-
+                            <strong th:text="${grupo.gastos}">
                                 R$ 0,00
-
                             </strong>
 
                         </a>
@@ -509,37 +428,20 @@
 
                         <!-- GUARDADO -->
 
-                        <a class="card-link"
+                        <a class="card-link resumo-financeiro guardado-resumo"
                            th:href="@{/lancamentos(
                                 periodo=${grupo.periodo},
                                 resumo='guardado',
                                 visualizacao=${visualizandoOutro ? 'outro' : null}
-                           )}"
-                           style="
-                                background: #f4f1ff;
-                                padding: 14px 16px;
-                                border-radius: 12px;
-                                text-decoration: none;
-                                color: inherit;
-                           ">
+                           )}">
 
-                            <span style="
-                                display: block;
-                                font-size: 11px;
-                                color: #716b82;
-                                margin-bottom: 5px;
-                            ">
-
+                            <span>
                                 GUARDADO
-
                             </span>
 
 
-                            <strong style="font-size: 20px;"
-                                    th:text="${grupo.guardado}">
-
+                            <strong th:text="${grupo.guardado}">
                                 R$ 0,00
-
                             </strong>
 
                         </a>
@@ -552,7 +454,7 @@
                     <!-- TODOS OS LANÇAMENTOS DO MÊS -->
                     <!-- ====================================== -->
 
-                    <table>
+                    <table class="tabela-lancamentos">
 
                         <thead>
 
@@ -600,7 +502,9 @@
                                 2,
                                 'COMMA'
                             )}|">
+
                                 R$ 0,00
+
                             </td>
 
 
@@ -612,7 +516,8 @@
                             </td>
 
 
-                            <td th:if="${!visualizandoOutro}">
+                            <td th:if="${!visualizandoOutro}"
+                                class="acoes-lancamento">
 
 
                                 <a class="botao"
@@ -626,7 +531,6 @@
                                 <form
                                         th:action="@{/lancamentos/excluir/{id}(id=${item.id})}"
                                         method="post"
-                                        style="display: inline;"
                                         onsubmit="return confirm('Deseja realmente excluir este lançamento?');">
 
                                     <button class="botao"
@@ -660,11 +564,7 @@
             <!-- ====================================== -->
 
             <div th:if="${gruposLancamentos.isEmpty()}"
-                 class="tabela-container"
-                 style="
-                    text-align: center;
-                    padding: 50px 20px;
-                 ">
+                 class="tabela-container estado-vazio estado-vazio-grande">
 
 
                 <p>

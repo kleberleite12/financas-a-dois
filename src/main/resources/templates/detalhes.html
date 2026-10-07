@@ -20,6 +20,10 @@
 
 <div class="container">
 
+    <!-- ====================================== -->
+    <!-- TOPO -->
+    <!-- ====================================== -->
+
     <header class="topo">
 
         <div>
@@ -68,7 +72,11 @@
 
     <main>
 
-        <section class="destaques">
+        <!-- ====================================== -->
+        <!-- TOTAL -->
+        <!-- ====================================== -->
+
+        <section class="destaques detalhes-total">
 
             <div class="card destaque saldo">
 
@@ -85,24 +93,35 @@
         </section>
 
 
-        <section class="tabela-container">
+        <!-- ====================================== -->
+        <!-- LANÇAMENTOS -->
+        <!-- ====================================== -->
+
+        <section class="tabela-container detalhes-container">
 
             <h2 th:text="${titulo}">
                 Lançamentos
             </h2>
 
 
-            <table th:if="${!lancamentos.isEmpty()}">
+            <table class="tabela-detalhes"
+                   th:if="${!lancamentos.isEmpty()}">
 
                 <thead>
 
                 <tr>
 
-                    <th>Descrição</th>
+                    <th>
+                        Descrição
+                    </th>
 
-                    <th>Categoria</th>
+                    <th>
+                        Categoria
+                    </th>
 
-                    <th>Valor</th>
+                    <th>
+                        Valor
+                    </th>
 
                 </tr>
 
@@ -114,10 +133,14 @@
                 <tr th:each="item : ${lancamentos}">
 
                     <td th:text="${item.descricao}">
+                        Descrição
                     </td>
 
+
                     <td th:text="${item.categoria}">
+                        Categoria
                     </td>
+
 
                     <td th:text="'R$ ' + ${#numbers.formatDecimal(
                         item.valor,
@@ -126,7 +149,9 @@
                         2,
                         'COMMA'
                     )}">
+
                         R$ 0,00
+
                     </td>
 
                 </tr>
@@ -136,9 +161,12 @@
             </table>
 
 
-            <p th:if="${lancamentos.isEmpty()}">
+            <div class="estado-vazio"
+                 th:if="${lancamentos.isEmpty()}">
+
                 Nenhum lançamento encontrado neste período.
-            </p>
+
+            </div>
 
         </section>
 
