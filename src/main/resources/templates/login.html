@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -9,44 +11,100 @@
 
     <title>Entrar | Finanças a Dois</title>
 
+
+    <!-- ====================================== -->
+    <!-- PWA -->
+    <!-- ====================================== -->
+
+    <link rel="manifest"
+          href="/manifest.webmanifest">
+
+    <meta name="theme-color"
+          content="#6f67e8">
+
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="default">
+
+    <meta name="apple-mobile-web-app-title"
+          content="Finanças">
+
+    <link rel="apple-touch-icon"
+          href="/icons/icon-192.png">
+
+
+    <!-- ====================================== -->
+    <!-- ESTILO -->
+    <!-- ====================================== -->
+
     <link rel="stylesheet"
           href="/css/style.css">
+
 </head>
+
 
 <body class="pagina-login">
 
+
 <div class="login-container">
 
+
     <div class="login-card">
+
 
         <span class="marca">
             FINANÇAS A DOIS
         </span>
 
-        <h1>Bem-vindos 👋</h1>
+
+        <h1>
+            Bem-vindos 👋
+        </h1>
+
 
         <p class="login-descricao">
             Acesse o controle financeiro compartilhado de vocês.
         </p>
 
+
+        <!-- ERRO DE LOGIN -->
+
         <div class="mensagem erro"
              th:if="${param.error}">
+
             Usuário ou senha incorretos.
+
         </div>
+
+
+        <!-- LOGOUT -->
 
         <div class="mensagem sucesso"
              th:if="${param.logout}">
+
             Você saiu da sua conta.
+
         </div>
+
+
+        <!-- LOGIN -->
 
         <form th:action="@{/login}"
               method="post">
 
+
             <div class="campo">
+
 
                 <label for="username">
                     Usuário
                 </label>
+
 
                 <input id="username"
                        type="text"
@@ -55,13 +113,17 @@
                        autocomplete="username"
                        required>
 
+
             </div>
 
+
             <div class="campo">
+
 
                 <label for="password">
                     Senha
                 </label>
+
 
                 <input id="password"
                        type="password"
@@ -70,22 +132,39 @@
                        autocomplete="current-password"
                        required>
 
+
             </div>
+
 
             <button class="botao-login"
                     type="submit">
+
                 Entrar
+
             </button>
 
+
         </form>
+
 
         <p class="login-rodape">
             Kleber & Giovanna ❤️
         </p>
 
+
     </div>
+
 
 </div>
 
+
+<!-- ====================================== -->
+<!-- PWA -->
+<!-- ====================================== -->
+
+<script src="/js/pwa.js"></script>
+
+
 </body>
+
 </html>

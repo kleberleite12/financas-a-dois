@@ -16,18 +16,32 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
                 .authorizeHttpRequests(autorizacao -> autorizacao
-                        .requestMatchers("/login", "/css/**").permitAll()
-                        .anyRequest().authenticated()
+
+                        .requestMatchers(
+                                "/login",
+                                "/css/**",
+                                "/js/**",
+                                "/icons/**",
+                                "/manifest.webmanifest",
+                                "/service-worker.js"
+                        )
+                        .permitAll()
+
+                        .anyRequest()
+                        .authenticated()
                 )
+
                 .formLogin(formulario -> formulario
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
@@ -37,10 +51,13 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public UserDetailsService userDetailsService(
@@ -48,17 +65,29 @@ public class SecurityConfig {
             @Value("${app.kleber.password}") String senhaKleber,
             @Value("${app.giovanna.password}") String senhaGiovanna) {
 
-        UserDetails kleber = User.builder()
-                .username("kleber")
-                .password(passwordEncoder.encode(senhaKleber))
-                .roles("USER")
-                .build();
+        UserDetails kleber =
+                User.builder()
+                        .username("kleber")
+                        .password(
+                                passwordEncoder.encode(
+                                        senhaKleber
+                                )
+                        )
+                        .roles("USER")
+                        .build();
 
-        UserDetails giovanna = User.builder()
-                .username("giovanna")
-                .password(passwordEncoder.encode(senhaGiovanna))
-                .roles("USER")
-                .build();
+
+        UserDetails giovanna =
+                User.builder()
+                        .username("giovanna")
+                        .password(
+                                passwordEncoder.encode(
+                                        senhaGiovanna
+                                )
+                        )
+                        .roles("USER")
+                        .build();
+
 
         return new InMemoryUserDetailsManager(
                 kleber,
