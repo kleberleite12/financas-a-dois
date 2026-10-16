@@ -132,6 +132,15 @@
         </a>
 
 
+        <a th:if="${!visualizandoOutro}"
+           class="botao"
+           th:href="@{/classificar-gastos}">
+
+            CLASSIFICAR GASTOS ANTIGOS
+
+        </a>
+
+
         <a class="botao-principal"
            th:href="@{/lancamentos/novo}">
 
@@ -257,9 +266,14 @@
                 <tr th:each="item : ${lancamentosFiltrados}">
 
 
+                    <!-- DESCRIÇÃO -->
+
                     <td th:text="${item.descricao}">
+                        Descrição
                     </td>
 
+
+                    <!-- VALOR -->
 
                     <td th:text="|R$ ${#numbers.formatDecimal(
                         item.valor,
@@ -274,13 +288,60 @@
                     </td>
 
 
-                    <td th:text="${item.tipo.descricao}">
+                    <!-- TIPO / FORMA DE PAGAMENTO -->
+
+                    <td>
+
+                        <span th:text="${item.tipo.descricao}">
+                            Tipo
+                        </span>
+
+
+                        <small th:if="${item.tipo.name() == 'OUTRO_GASTO'
+                                      and item.formaPagamento != null}"
+                               style="
+                                    display: block;
+                                    margin-top: 5px;
+                                    color: #7d879b;
+                                    font-size: 11px;
+                                    line-height: 1.3;
+                               ">
+
+                            Pago com:
+
+                            <strong th:text="${item.formaPagamento.descricao}">
+                                Saldo na conta
+                            </strong>
+
+                        </small>
+
+
+                        <small th:if="${item.tipo.name() == 'OUTRO_GASTO'
+                                      and item.formaPagamento == null}"
+                               style="
+                                    display: block;
+                                    margin-top: 5px;
+                                    color: #b57a42;
+                                    font-size: 11px;
+                                    line-height: 1.3;
+                               ">
+
+                            Pago com:
+                            <strong>Não informado</strong>
+
+                        </small>
+
                     </td>
 
+
+                    <!-- CATEGORIA -->
 
                     <td th:text="${item.categoria}">
+                        Categoria
                     </td>
 
+
+                    <!-- AÇÕES -->
 
                     <td th:if="${!visualizandoOutro}"
                         class="acoes-lancamento">
@@ -415,8 +476,6 @@
                     <div class="resumo-lancamentos">
 
 
-                        <!-- RECEITAS -->
-
                         <a class="card-link resumo-financeiro receita-resumo"
                            th:href="@{/lancamentos(
                                 periodo=${grupo.periodo},
@@ -436,8 +495,6 @@
                         </a>
 
 
-                        <!-- GASTOS -->
-
                         <a class="card-link resumo-financeiro gasto-resumo"
                            th:href="@{/lancamentos(
                                 periodo=${grupo.periodo},
@@ -456,8 +513,6 @@
 
                         </a>
 
-
-                        <!-- GUARDADO -->
 
                         <a class="card-link resumo-financeiro guardado-resumo"
                            th:href="@{/lancamentos(
@@ -522,9 +577,14 @@
                         <tr th:each="item : ${grupo.lancamentos}">
 
 
+                            <!-- DESCRIÇÃO -->
+
                             <td th:text="${item.descricao}">
+                                Descrição
                             </td>
 
+
+                            <!-- VALOR -->
 
                             <td th:text="|R$ ${#numbers.formatDecimal(
                                 item.valor,
@@ -539,13 +599,60 @@
                             </td>
 
 
-                            <td th:text="${item.tipo.descricao}">
+                            <!-- TIPO / FORMA DE PAGAMENTO -->
+
+                            <td>
+
+                                <span th:text="${item.tipo.descricao}">
+                                    Tipo
+                                </span>
+
+
+                                <small th:if="${item.tipo.name() == 'OUTRO_GASTO'
+                                              and item.formaPagamento != null}"
+                                       style="
+                                            display: block;
+                                            margin-top: 5px;
+                                            color: #7d879b;
+                                            font-size: 11px;
+                                            line-height: 1.3;
+                                       ">
+
+                                    Pago com:
+
+                                    <strong th:text="${item.formaPagamento.descricao}">
+                                        Saldo na conta
+                                    </strong>
+
+                                </small>
+
+
+                                <small th:if="${item.tipo.name() == 'OUTRO_GASTO'
+                                              and item.formaPagamento == null}"
+                                       style="
+                                            display: block;
+                                            margin-top: 5px;
+                                            color: #b57a42;
+                                            font-size: 11px;
+                                            line-height: 1.3;
+                                       ">
+
+                                    Pago com:
+                                    <strong>Não informado</strong>
+
+                                </small>
+
                             </td>
 
+
+                            <!-- CATEGORIA -->
 
                             <td th:text="${item.categoria}">
+                                Categoria
                             </td>
 
+
+                            <!-- AÇÕES -->
 
                             <td th:if="${!visualizandoOutro}"
                                 class="acoes-lancamento">

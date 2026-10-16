@@ -1,5 +1,6 @@
 package io.github.kleberleite12.financas.controller;
 
+import io.github.kleberleite12.financas.model.FormaPagamento;
 import io.github.kleberleite12.financas.model.Lancamento;
 import io.github.kleberleite12.financas.model.TipoLancamento;
 import io.github.kleberleite12.financas.repository.LancamentoRepository;
@@ -32,18 +33,29 @@ public class LancamentoController {
     private static final BigDecimal VALOR_MAXIMO =
             new BigDecimal("99999999.99");
 
-    private static final List<TipoLancamento> TIPOS_ATIVOS = List.of(
-            TipoLancamento.RENDA_PRINCIPAL,
-            TipoLancamento.RENDA_EXTRA,
-            TipoLancamento.CARTAO_CREDITO,
-            TipoLancamento.OUTRO_GASTO,
-            TipoLancamento.GUARDADO
-    );
+
+    private static final List<TipoLancamento> TIPOS_ATIVOS =
+            List.of(
+                    TipoLancamento.RENDA_PRINCIPAL,
+                    TipoLancamento.RENDA_EXTRA,
+                    TipoLancamento.CARTAO_CREDITO,
+                    TipoLancamento.OUTRO_GASTO,
+                    TipoLancamento.GUARDADO
+            );
+
+
+    private static final List<FormaPagamento> FORMAS_PAGAMENTO_GASTO =
+            List.of(
+                    FormaPagamento.SALDO_NA_CONTA,
+                    FormaPagamento.CARTAO_CREDITO
+            );
+
 
     public LancamentoController(
             LancamentoRepository lancamentoRepository) {
 
-        this.lancamentoRepository = lancamentoRepository;
+        this.lancamentoRepository =
+                lancamentoRepository;
     }
 
 
@@ -53,26 +65,36 @@ public class LancamentoController {
 
     @GetMapping("/lancamentos")
     public String listar(
-            @RequestParam(required = false) String visualizacao,
-            @RequestParam(required = false) String periodo,
-            @RequestParam(required = false) String resumo,
+            @RequestParam(required = false)
+            String visualizacao,
+
+            @RequestParam(required = false)
+            String periodo,
+
+            @RequestParam(required = false)
+            String resumo,
+
             Model model,
             Authentication authentication) {
+
 
         String nomeUsuario =
                 formatarNomeUsuario(
                         authentication.getName()
                 );
 
+
         String nomeOutroUsuario =
                 nomeUsuario.equalsIgnoreCase("Kleber")
                         ? "Giovanna"
                         : "Kleber";
 
+
         boolean visualizandoOutro =
                 "outro".equalsIgnoreCase(
                         visualizacao
                 );
+
 
         String responsavelExibido =
                 visualizandoOutro
@@ -81,7 +103,8 @@ public class LancamentoController {
 
 
         List<Lancamento> lancamentos =
-                lancamentoRepository.findAll(
+                lancamentoRepository
+                        .findAll(
                                 Sort.by(
                                         Sort.Order.desc("data"),
                                         Sort.Order.desc("id")
@@ -89,9 +112,10 @@ public class LancamentoController {
                         )
                         .stream()
                         .filter(lancamento ->
-                                responsavelExibido.equalsIgnoreCase(
-                                        lancamento.getResponsavel()
-                                )
+                                responsavelExibido
+                                        .equalsIgnoreCase(
+                                                lancamento.getResponsavel()
+                                        )
                         )
                         .toList();
 
@@ -106,8 +130,10 @@ public class LancamentoController {
                         && resumo != null
                         && !resumo.isBlank();
 
+
         List<Lancamento> lancamentosFiltrados =
                 new ArrayList<>();
+
 
         String tituloFiltro = "";
 
@@ -128,10 +154,12 @@ public class LancamentoController {
                                 periodo
                         );
 
+
                 periodoFiltroFormatado =
                         formatarPeriodo(
                                 periodoSelecionado
                         );
+
 
                 lancamentosFiltrados =
                         lancamentos.stream()
@@ -156,26 +184,40 @@ public class LancamentoController {
                                 .toList();
 
 
-                if ("receitas".equalsIgnoreCase(resumo)) {
+                if ("receitas"
+                        .equalsIgnoreCase(
+                                resumo
+                        )) {
 
-                    tituloFiltro = "Receitas";
+                    tituloFiltro =
+                            "Receitas";
 
-                } else if ("gastos".equalsIgnoreCase(resumo)) {
+                } else if ("gastos"
+                        .equalsIgnoreCase(
+                                resumo
+                        )) {
 
-                    tituloFiltro = "Gastos";
+                    tituloFiltro =
+                            "Gastos";
 
-                } else if ("guardado".equalsIgnoreCase(resumo)) {
+                } else if ("guardado"
+                        .equalsIgnoreCase(
+                                resumo
+                        )) {
 
-                    tituloFiltro = "Guardado";
+                    tituloFiltro =
+                            "Guardado";
 
                 } else {
 
-                    filtroAtivo = false;
+                    filtroAtivo =
+                            false;
                 }
 
 
                 BigDecimal total =
-                        lancamentosFiltrados.stream()
+                        lancamentosFiltrados
+                                .stream()
                                 .map(
                                         Lancamento::getValor
                                 )
@@ -184,6 +226,7 @@ public class LancamentoController {
                                         BigDecimal::add
                                 );
 
+
                 totalFiltro =
                         formatarMoeda(
                                 total
@@ -191,7 +234,8 @@ public class LancamentoController {
 
             } catch (Exception erro) {
 
-                filtroAtivo = false;
+                filtroAtivo =
+                        false;
             }
         }
 
@@ -207,55 +251,66 @@ public class LancamentoController {
                 gruposLancamentos
         );
 
+
         model.addAttribute(
                 "lancamentosFiltrados",
                 lancamentosFiltrados
         );
+
 
         model.addAttribute(
                 "nomeUsuario",
                 nomeUsuario
         );
 
+
         model.addAttribute(
                 "nomeOutroUsuario",
                 nomeOutroUsuario
         );
+
 
         model.addAttribute(
                 "responsavelExibido",
                 responsavelExibido
         );
 
+
         model.addAttribute(
                 "visualizandoOutro",
                 visualizandoOutro
         );
+
 
         model.addAttribute(
                 "quantidadeResultados",
                 lancamentos.size()
         );
 
+
         model.addAttribute(
                 "filtroAtivo",
                 filtroAtivo
         );
+
 
         model.addAttribute(
                 "tituloFiltro",
                 tituloFiltro
         );
 
+
         model.addAttribute(
                 "periodoFiltroFormatado",
                 periodoFiltroFormatado
         );
 
+
         model.addAttribute(
                 "totalFiltro",
                 totalFiltro
         );
+
 
         return "lancamentos";
     }
@@ -270,10 +325,12 @@ public class LancamentoController {
             Model model,
             Authentication authentication) {
 
+
         String nomeUsuario =
                 formatarNomeUsuario(
                         authentication.getName()
                 );
+
 
         prepararFormulario(
                 model,
@@ -281,6 +338,7 @@ public class LancamentoController {
                 nomeUsuario,
                 false
         );
+
 
         return "novo-lancamento";
     }
@@ -296,10 +354,12 @@ public class LancamentoController {
             Model model,
             Authentication authentication) {
 
+
         String nomeUsuario =
                 formatarNomeUsuario(
                         authentication.getName()
                 );
+
 
         Lancamento lancamento =
                 lancamentoRepository
@@ -311,13 +371,16 @@ public class LancamentoController {
                                 )
                         );
 
+
         verificarDono(
                 lancamento,
                 nomeUsuario
         );
 
 
-        // Compatibilidade com registros antigos
+        // =========================================
+        // COMPATIBILIDADE COM REGISTROS ANTIGOS
+        // =========================================
 
         if (lancamento.getTipo()
                 == TipoLancamento.RECEITA) {
@@ -326,6 +389,7 @@ public class LancamentoController {
                     TipoLancamento.RENDA_PRINCIPAL
             );
         }
+
 
         if (lancamento.getTipo()
                 == TipoLancamento.GASTO) {
@@ -336,12 +400,31 @@ public class LancamentoController {
         }
 
 
+        /*
+         * Registros antigos de cartão ainda não possuem
+         * formaPagamento gravada.
+         *
+         * Como já sabemos que eram compras no cartão,
+         * preenchemos automaticamente.
+         */
+
+        if (lancamento.getTipo()
+                == TipoLancamento.CARTAO_CREDITO
+                && lancamento.getFormaPagamento() == null) {
+
+            lancamento.setFormaPagamento(
+                    FormaPagamento.CARTAO_CREDITO
+            );
+        }
+
+
         prepararFormulario(
                 model,
                 lancamento,
                 nomeUsuario,
                 true
         );
+
 
         return "novo-lancamento";
     }
@@ -354,9 +437,13 @@ public class LancamentoController {
     @PostMapping("/lancamentos")
     public String salvar(
             Lancamento lancamento,
-            @RequestParam(required = false) String periodoLancamento,
+
+            @RequestParam(required = false)
+            String periodoLancamento,
+
             Authentication authentication,
             Model model) {
+
 
         String nomeUsuario =
                 formatarNomeUsuario(
@@ -365,13 +452,12 @@ public class LancamentoController {
 
 
         /*
-         * Se for edição, primeiro confirmamos se o
-         * lançamento realmente pertence ao usuário.
-         *
-         * Isso acontece ANTES de qualquer alteração.
+         * Se for edição, primeiro confirmamos
+         * que o lançamento pertence ao usuário.
          */
 
         Lancamento existente = null;
+
 
         if (lancamento.getId() != null) {
 
@@ -387,11 +473,21 @@ public class LancamentoController {
                                     )
                             );
 
+
             verificarDono(
                     existente,
                     nomeUsuario
             );
         }
+
+
+        // =========================================
+        // NORMALIZA FORMA DE PAGAMENTO
+        // =========================================
+
+        normalizarFormaPagamento(
+                lancamento
+        );
 
 
         // =========================================
@@ -415,6 +511,7 @@ public class LancamentoController {
                     erroValidacao
             );
 
+
             return "novo-lancamento";
         }
 
@@ -427,6 +524,7 @@ public class LancamentoController {
                 YearMonth.parse(
                         periodoLancamento
                 );
+
 
         lancamento.setData(
                 periodo.atDay(1)
@@ -474,6 +572,7 @@ public class LancamentoController {
                 lancamento
         );
 
+
         return "redirect:/lancamentos";
     }
 
@@ -487,10 +586,12 @@ public class LancamentoController {
             @PathVariable Long id,
             Authentication authentication) {
 
+
         String nomeUsuario =
                 formatarNomeUsuario(
                         authentication.getName()
                 );
+
 
         Lancamento lancamento =
                 lancamentoRepository
@@ -502,16 +603,76 @@ public class LancamentoController {
                                 )
                         );
 
+
         verificarDono(
                 lancamento,
                 nomeUsuario
         );
 
+
         lancamentoRepository.delete(
                 lancamento
         );
 
+
         return "redirect:/lancamentos";
+    }
+
+
+    // =========================================
+    // NORMALIZA FORMA DE PAGAMENTO
+    // =========================================
+
+    private void normalizarFormaPagamento(
+            Lancamento lancamento) {
+
+
+        TipoLancamento tipo =
+                lancamento.getTipo();
+
+
+        if (tipo == null) {
+
+            return;
+        }
+
+
+        /*
+         * Cartão de crédito:
+         * a forma de pagamento é sempre cartão.
+         */
+
+        if (tipo
+                == TipoLancamento.CARTAO_CREDITO) {
+
+            lancamento.setFormaPagamento(
+                    FormaPagamento.CARTAO_CREDITO
+            );
+
+            return;
+        }
+
+
+        /*
+         * Outro gasto:
+         * preservamos a escolha feita pelo usuário.
+         */
+
+        if (tipo
+                == TipoLancamento.OUTRO_GASTO) {
+
+            return;
+        }
+
+
+        /*
+         * Salário, renda extra e valor guardado
+         * não precisam de forma de pagamento.
+         */
+
+        lancamento.setFormaPagamento(
+                null
+        );
     }
 
 
@@ -522,6 +683,7 @@ public class LancamentoController {
     private String validarLancamento(
             Lancamento lancamento,
             String periodoLancamento) {
+
 
         // Valor obrigatório
 
@@ -535,7 +697,9 @@ public class LancamentoController {
 
         if (lancamento
                 .getValor()
-                .compareTo(BigDecimal.ZERO) <= 0) {
+                .compareTo(
+                        BigDecimal.ZERO
+                ) <= 0) {
 
             return "O valor deve ser maior que zero.";
         }
@@ -545,7 +709,9 @@ public class LancamentoController {
 
         if (lancamento
                 .getValor()
-                .compareTo(VALOR_MAXIMO) > 0) {
+                .compareTo(
+                        VALOR_MAXIMO
+                ) > 0) {
 
             return "O valor informado é muito alto.";
         }
@@ -557,6 +723,7 @@ public class LancamentoController {
                 lancamento
                         .getValor()
                         .stripTrailingZeros();
+
 
         if (valorNormalizado.scale() > 2) {
 
@@ -572,7 +739,7 @@ public class LancamentoController {
         }
 
 
-        // Impede envio manual de tipos que não existem mais na tela
+        // Apenas tipos ativos
 
         if (!TIPOS_ATIVOS.contains(
                 lancamento.getTipo()
@@ -582,7 +749,33 @@ public class LancamentoController {
         }
 
 
-        // Período obrigatório
+        // =========================================
+        // FORMA DE PAGAMENTO
+        // =========================================
+
+        if (lancamento.getTipo()
+                == TipoLancamento.OUTRO_GASTO) {
+
+
+            if (lancamento
+                    .getFormaPagamento() == null) {
+
+                return "Selecione como este gasto foi pago.";
+            }
+
+
+            if (!FORMAS_PAGAMENTO_GASTO.contains(
+                    lancamento.getFormaPagamento()
+            )) {
+
+                return "Forma de pagamento inválida.";
+            }
+        }
+
+
+        // =========================================
+        // PERÍODO
+        // =========================================
 
         if (periodoLancamento == null
                 || periodoLancamento.isBlank()) {
@@ -590,8 +783,6 @@ public class LancamentoController {
             return "Informe o mês e o ano.";
         }
 
-
-        // Período precisa estar no formato correto
 
         try {
 
@@ -605,19 +796,27 @@ public class LancamentoController {
         }
 
 
-        // Descrição: máximo 255 caracteres
+        // =========================================
+        // DESCRIÇÃO
+        // =========================================
 
         if (lancamento.getDescricao() != null
-                && lancamento.getDescricao().length() > 255) {
+                && lancamento
+                .getDescricao()
+                .length() > 255) {
 
             return "A descrição pode ter no máximo 255 caracteres.";
         }
 
 
-        // Categoria: máximo 255 caracteres
+        // =========================================
+        // CATEGORIA
+        // =========================================
 
         if (lancamento.getCategoria() != null
-                && lancamento.getCategoria().length() > 255) {
+                && lancamento
+                .getCategoria()
+                .length() > 255) {
 
             return "A categoria pode ter no máximo 255 caracteres.";
         }
@@ -627,6 +826,10 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // FORMULÁRIO COM ERRO
+    // =========================================
+
     private void prepararFormularioComErro(
             Model model,
             Lancamento lancamento,
@@ -634,8 +837,10 @@ public class LancamentoController {
             String periodoLancamento,
             String mensagemErro) {
 
+
         boolean modoEdicao =
                 lancamento.getId() != null;
+
 
         prepararFormulario(
                 model,
@@ -669,29 +874,50 @@ public class LancamentoController {
             Lancamento lancamento,
             String resumo) {
 
+
         TipoLancamento tipo =
                 lancamento.getTipo();
 
 
-        if ("receitas".equalsIgnoreCase(resumo)) {
+        if ("receitas"
+                .equalsIgnoreCase(
+                        resumo
+                )) {
 
-            return tipo == TipoLancamento.RENDA_PRINCIPAL
-                    || tipo == TipoLancamento.RENDA_EXTRA
-                    || tipo == TipoLancamento.RECEITA;
+            return tipo
+                    == TipoLancamento.RENDA_PRINCIPAL
+
+                    || tipo
+                    == TipoLancamento.RENDA_EXTRA
+
+                    || tipo
+                    == TipoLancamento.RECEITA;
         }
 
 
-        if ("gastos".equalsIgnoreCase(resumo)) {
+        if ("gastos"
+                .equalsIgnoreCase(
+                        resumo
+                )) {
 
-            return tipo == TipoLancamento.CARTAO_CREDITO
-                    || tipo == TipoLancamento.OUTRO_GASTO
-                    || tipo == TipoLancamento.GASTO;
+            return tipo
+                    == TipoLancamento.CARTAO_CREDITO
+
+                    || tipo
+                    == TipoLancamento.OUTRO_GASTO
+
+                    || tipo
+                    == TipoLancamento.GASTO;
         }
 
 
-        if ("guardado".equalsIgnoreCase(resumo)) {
+        if ("guardado"
+                .equalsIgnoreCase(
+                        resumo
+                )) {
 
-            return tipo == TipoLancamento.GUARDADO;
+            return tipo
+                    == TipoLancamento.GUARDADO;
         }
 
 
@@ -706,21 +932,30 @@ public class LancamentoController {
     private List<GrupoLancamentos> agruparPorMes(
             List<Lancamento> lancamentos) {
 
+
         Map<YearMonth, List<Lancamento>> grupos =
                 new LinkedHashMap<>();
 
 
-        for (Lancamento lancamento : lancamentos) {
+        for (Lancamento lancamento
+                : lancamentos) {
+
 
             YearMonth periodo =
                     YearMonth.from(
                             lancamento.getData()
                     );
 
-            grupos.computeIfAbsent(
-                    periodo,
-                    chave -> new ArrayList<>()
-            ).add(lancamento);
+
+            grupos
+                    .computeIfAbsent(
+                            periodo,
+                            chave ->
+                                    new ArrayList<>()
+                    )
+                    .add(
+                            lancamento
+                    );
         }
 
 
@@ -728,8 +963,12 @@ public class LancamentoController {
                 new ArrayList<>();
 
 
-        for (Map.Entry<YearMonth, List<Lancamento>> entrada
+        for (Map.Entry<
+                YearMonth,
+                List<Lancamento>>
+                entrada
                 : grupos.entrySet()) {
+
 
             List<Lancamento> lancamentosMes =
                     entrada.getValue();
@@ -740,10 +979,12 @@ public class LancamentoController {
                             lancamentosMes
                     );
 
+
             BigDecimal gastos =
                     calcularGastos(
                             lancamentosMes
                     );
+
 
             BigDecimal guardado =
                     calcularGuardado(
@@ -753,14 +994,27 @@ public class LancamentoController {
 
             resultado.add(
                     new GrupoLancamentos(
-                            entrada.getKey().toString(),
+                            entrada
+                                    .getKey()
+                                    .toString(),
+
                             formatarPeriodo(
                                     entrada.getKey()
                             ),
+
                             lancamentosMes,
-                            formatarMoeda(receitas),
-                            formatarMoeda(gastos),
-                            formatarMoeda(guardado)
+
+                            formatarMoeda(
+                                    receitas
+                            ),
+
+                            formatarMoeda(
+                                    gastos
+                            ),
+
+                            formatarMoeda(
+                                    guardado
+                            )
                     )
             );
         }
@@ -770,15 +1024,22 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // RECEITAS
+    // =========================================
+
     private BigDecimal calcularReceitas(
             List<Lancamento> lancamentos) {
 
-        return lancamentos.stream()
+
+        return lancamentos
+                .stream()
 
                 .filter(lancamento -> {
 
                     TipoLancamento tipo =
                             lancamento.getTipo();
+
 
                     return tipo
                             == TipoLancamento.RENDA_PRINCIPAL
@@ -801,15 +1062,22 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // GASTOS
+    // =========================================
+
     private BigDecimal calcularGastos(
             List<Lancamento> lancamentos) {
 
-        return lancamentos.stream()
+
+        return lancamentos
+                .stream()
 
                 .filter(lancamento -> {
 
                     TipoLancamento tipo =
                             lancamento.getTipo();
+
 
                     return tipo
                             == TipoLancamento.CARTAO_CREDITO
@@ -832,10 +1100,16 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // GUARDADO
+    // =========================================
+
     private BigDecimal calcularGuardado(
             List<Lancamento> lancamentos) {
 
-        return lancamentos.stream()
+
+        return lancamentos
+                .stream()
 
                 .filter(lancamento ->
                         lancamento.getTipo()
@@ -854,22 +1128,37 @@ public class LancamentoController {
 
 
     // =========================================
-    // PERÍODO / MOEDA
+    // PERÍODO
     // =========================================
 
     private String formatarPeriodo(
             YearMonth periodo) {
 
+
         String mes =
-                periodo.getMonth()
+                periodo
+                        .getMonth()
                         .getDisplayName(
                                 TextStyle.FULL,
-                                Locale.forLanguageTag("pt-BR")
+                                Locale.forLanguageTag(
+                                        "pt-BR"
+                                )
                         );
 
+
         mes =
-                mes.substring(0, 1).toUpperCase()
-                        + mes.substring(1);
+                mes
+                        .substring(
+                                0,
+                                1
+                        )
+                        .toUpperCase()
+
+                        + mes
+                        .substring(
+                                1
+                        );
+
 
         return mes
                 + " de "
@@ -877,13 +1166,22 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // MOEDA
+    // =========================================
+
     private String formatarMoeda(
             BigDecimal valor) {
 
+
         NumberFormat formato =
-                NumberFormat.getCurrencyInstance(
-                        Locale.forLanguageTag("pt-BR")
-                );
+                NumberFormat
+                        .getCurrencyInstance(
+                                Locale.forLanguageTag(
+                                        "pt-BR"
+                                )
+                        );
+
 
         return formato.format(
                 valor
@@ -901,6 +1199,7 @@ public class LancamentoController {
             String nomeUsuario,
             boolean modoEdicao) {
 
+
         String periodoLancamento;
 
 
@@ -916,7 +1215,8 @@ public class LancamentoController {
         } else {
 
             periodoLancamento =
-                    YearMonth.now()
+                    YearMonth
+                            .now()
                             .toString();
         }
 
@@ -926,20 +1226,24 @@ public class LancamentoController {
                 lancamento
         );
 
+
         model.addAttribute(
                 "tipos",
                 TIPOS_ATIVOS
         );
+
 
         model.addAttribute(
                 "nomeUsuario",
                 nomeUsuario
         );
 
+
         model.addAttribute(
                 "modoEdicao",
                 modoEdicao
         );
+
 
         model.addAttribute(
                 "periodoLancamento",
@@ -948,11 +1252,18 @@ public class LancamentoController {
     }
 
 
+    // =========================================
+    // CAMPOS OPCIONAIS
+    // =========================================
+
     private void preencherCamposOpcionais(
             Lancamento lancamento) {
 
+
         if (lancamento.getDescricao() == null
-                || lancamento.getDescricao().isBlank()) {
+                || lancamento
+                .getDescricao()
+                .isBlank()) {
 
             lancamento.setDescricao(
                     lancamento
@@ -971,7 +1282,9 @@ public class LancamentoController {
 
 
         if (lancamento.getCategoria() == null
-                || lancamento.getCategoria().isBlank()) {
+                || lancamento
+                .getCategoria()
+                .isBlank()) {
 
             lancamento.setCategoria(
                     lancamento
@@ -998,9 +1311,12 @@ public class LancamentoController {
             Lancamento lancamento,
             String nomeUsuario) {
 
-        if (!nomeUsuario.equalsIgnoreCase(
-                lancamento.getResponsavel()
-        )) {
+
+        if (!nomeUsuario
+                .equalsIgnoreCase(
+                        lancamento.getResponsavel()
+                )) {
+
 
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -1013,17 +1329,25 @@ public class LancamentoController {
     private String formatarNomeUsuario(
             String usuario) {
 
+
         if (usuario == null
                 || usuario.isBlank()) {
 
             return "Usuário";
         }
 
+
         return usuario
-                .substring(0, 1)
+                .substring(
+                        0,
+                        1
+                )
                 .toUpperCase()
+
                 + usuario
-                .substring(1)
+                .substring(
+                        1
+                )
                 .toLowerCase();
     }
 
@@ -1034,11 +1358,13 @@ public class LancamentoController {
 
     public static class GrupoLancamentos {
 
+
         private final String periodo;
 
         private final String titulo;
 
-        private final List<Lancamento> lancamentos;
+        private final List<Lancamento>
+                lancamentos;
 
         private final String receitas;
 
@@ -1055,12 +1381,24 @@ public class LancamentoController {
                 String gastos,
                 String guardado) {
 
-            this.periodo = periodo;
-            this.titulo = titulo;
-            this.lancamentos = lancamentos;
-            this.receitas = receitas;
-            this.gastos = gastos;
-            this.guardado = guardado;
+
+            this.periodo =
+                    periodo;
+
+            this.titulo =
+                    titulo;
+
+            this.lancamentos =
+                    lancamentos;
+
+            this.receitas =
+                    receitas;
+
+            this.gastos =
+                    gastos;
+
+            this.guardado =
+                    guardado;
         }
 
 
@@ -1068,21 +1406,28 @@ public class LancamentoController {
             return periodo;
         }
 
+
         public String getTitulo() {
             return titulo;
         }
 
-        public List<Lancamento> getLancamentos() {
+
+        public List<Lancamento>
+        getLancamentos() {
+
             return lancamentos;
         }
+
 
         public String getReceitas() {
             return receitas;
         }
 
+
         public String getGastos() {
             return gastos;
         }
+
 
         public String getGuardado() {
             return guardado;

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Classificar Gastos | Finanças a Dois
+    </title>
+
+
+    <!-- PWA -->
+
+    <link rel="manifest"
+          href="/manifest.webmanifest">
+
+    <meta name="theme-color"
+          content="#6f67e8">
+
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="default">
+
+    <meta name="apple-mobile-web-app-title"
+          content="Finanças">
+
+    <link rel="apple-touch-icon"
+          href="/icons/icon-192.png">
+
+
+    <!-- ESTILO -->
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+    <!-- ====================================== -->
+    <!-- TOPO -->
+    <!-- ====================================== -->
+
+    <header class="topo">
+
+        <div>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+            <h1>
+                Classificar gastos antigos
+            </h1>
+
+            <p>
+                Informe de onde saiu o dinheiro
+                dos gastos antigos que ainda não
+                possuem forma de pagamento.
+            </p>
+
+        </div>
+
+
+        <a class="botao"
+           th:href="@{/lancamentos}">
+
+            Seus lançamentos
+
+        </a>
+
+    </header>
+
+
+    <main>
+
+
+        <!-- ====================================== -->
+        <!-- RESUMO -->
+        <!-- ====================================== -->
+
+        <section class="formulario">
+
+            <h2>
+                Gastos de
+                <span th:text="${nomeUsuario}">
+                    Usuário
+                </span>
+            </h2>
+
+            <p style="
+                color: #7d879b;
+                line-height: 1.5;
+                margin-bottom: 20px;
+            ">
+
+                Você possui
+
+                <strong th:text="${quantidade}">
+                    0
+                </strong>
+
+                gasto(s) antigo(s) ainda sem classificação.
+
+            </p>
+
+
+            <!-- ====================================== -->
+            <!-- SEM PENDÊNCIAS -->
+            <!-- ====================================== -->
+
+            <div th:if="${gastosSemClassificacao.isEmpty()}"
+                 class="estado-vazio">
+
+                <p>
+                    Todos os seus gastos já estão classificados. ✅
+                </p>
+
+                <br>
+
+                <a class="botao-principal"
+                   th:href="@{/}">
+
+                    Voltar ao dashboard
+
+                </a>
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- FORMULÁRIO -->
+            <!-- ====================================== -->
+
+            <form th:if="${!gastosSemClassificacao.isEmpty()}"
+                  th:action="@{/classificar-gastos}"
+                  method="post">
+
+
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                ">
+
+
+                    <!-- ====================================== -->
+                    <!-- ITEM -->
+                    <!-- ====================================== -->
+
+                    <div th:each="item : ${gastosSemClassificacao}"
+                         class="card"
+                         style="
+                            padding: 20px;
+                            display: grid;
+                            grid-template-columns:
+                                minmax(0, 1.5fr)
+                                minmax(130px, 0.7fr)
+                                minmax(180px, 1fr);
+                            gap: 18px;
+                            align-items: center;
+                         ">
+
+
+                        <!-- DESCRIÇÃO -->
+
+                        <div>
+
+                            <span style="
+                                display: block;
+                                font-size: 12px;
+                                font-weight: bold;
+                                color: #8a93a6;
+                                margin-bottom: 5px;
+                            ">
+
+                                DESCRIÇÃO
+
+                            </span>
+
+
+                            <strong style="
+                                display: block;
+                                font-size: 18px;
+                                color: #263046;
+                            "
+                                    th:text="${item.descricao}">
+
+                                Descrição
+
+                            </strong>
+
+
+                            <small style="
+                                display: block;
+                                margin-top: 5px;
+                                color: #8a93a6;
+                            "
+                                   th:text="${item.categoria}">
+
+                                Categoria
+
+                            </small>
+
+                        </div>
+
+
+                        <!-- VALOR -->
+
+                        <div>
+
+                            <span style="
+                                display: block;
+                                font-size: 12px;
+                                font-weight: bold;
+                                color: #8a93a6;
+                                margin-bottom: 5px;
+                            ">
+
+                                VALOR
+
+                            </span>
+
+
+                            <strong style="
+                                font-size: 20px;
+                                color: #6458ba;
+                                white-space: nowrap;
+                            "
+                                    th:text="|R$ ${#numbers.formatDecimal(
+                                        item.valor,
+                                        1,
+                                        'POINT',
+                                        2,
+                                        'COMMA'
+                                    )}|">
+
+                                R$ 0,00
+
+                            </strong>
+
+                        </div>
+
+
+                        <!-- FORMA DE PAGAMENTO -->
+
+                        <div class="campo"
+                             style="margin-bottom: 0;">
+
+                            <label th:for="|formaPagamento_${item.id}|">
+                                Pago com
+                            </label>
+
+
+                            <select th:id="|formaPagamento_${item.id}|"
+                                    th:name="|formaPagamento_${item.id}|"
+                                    required>
+
+                                <option value="">
+                                    Selecione
+                                </option>
+
+                                <option value="SALDO_NA_CONTA">
+                                    Saldo na conta
+                                </option>
+
+                                <option value="CARTAO_CREDITO">
+                                    Cartão de crédito
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================== -->
+                <!-- AÇÕES -->
+                <!-- ====================================== -->
+
+                <div style="
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    margin-top: 24px;
+                ">
+
+                    <button class="botao-principal"
+                            type="submit">
+
+                        Salvar classificações
+
+                    </button>
+
+
+                    <a class="botao"
+                       th:href="@{/lancamentos}">
+
+                        Cancelar
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- PWA -->
+
+<script src="/js/pwa.js"></script>
+
+</body>
+
+</html>

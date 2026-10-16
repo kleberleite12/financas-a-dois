@@ -157,7 +157,9 @@
                        th:field="*{id}">
 
 
+                <!-- ====================================== -->
                 <!-- VALOR -->
+                <!-- ====================================== -->
 
                 <div class="campo">
 
@@ -175,7 +177,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- MÊS E ANO -->
+                <!-- ====================================== -->
 
                 <div class="campo">
 
@@ -193,7 +197,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- TIPO -->
+                <!-- ====================================== -->
 
                 <div class="campo">
 
@@ -202,6 +208,7 @@
                     </label>
 
                     <select th:field="*{tipo}"
+                            id="tipoLancamento"
                             required>
 
                         <option value="">
@@ -220,7 +227,51 @@
                 </div>
 
 
+                <!-- ====================================== -->
+                <!-- PAGO COM -->
+                <!-- ====================================== -->
+
+                <div class="campo"
+                     id="campoFormaPagamento"
+                     style="display: none;">
+
+                    <label>
+                        Pago com *
+                    </label>
+
+
+                    <select th:field="*{formaPagamento}"
+                            id="formaPagamento">
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        <option value="SALDO_NA_CONTA">
+                            Saldo na conta
+                        </option>
+
+                        <option value="CARTAO_CREDITO">
+                            Cartão de crédito
+                        </option>
+
+                    </select>
+
+
+                    <small style="
+                        display: block;
+                        margin-top: 7px;
+                        color: #7d879b;
+                    ">
+                        Escolha de onde saiu o dinheiro deste gasto.
+                    </small>
+
+                </div>
+
+
+                <!-- ====================================== -->
                 <!-- DESCRIÇÃO -->
+                <!-- ====================================== -->
 
                 <div class="campo">
 
@@ -238,12 +289,14 @@
                     <input type="text"
                            th:field="*{descricao}"
                            maxlength="255"
-                           placeholder="Ex.: Uber, Carrefour, Freelance...">
+                           placeholder="Ex.: Uber, Carrefour, Doce...">
 
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- CATEGORIA -->
+                <!-- ====================================== -->
 
                 <div class="campo">
 
@@ -266,7 +319,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- SALVAR -->
+                <!-- ====================================== -->
 
                 <button class="botao-principal"
                         type="submit"
@@ -297,6 +352,94 @@
     </main>
 
 </div>
+
+
+<!-- ====================================== -->
+<!-- CONTROLE DO CAMPO "PAGO COM" -->
+<!-- ====================================== -->
+
+<script>
+
+    const tipoLancamento =
+        document.getElementById("tipoLancamento");
+
+    const campoFormaPagamento =
+        document.getElementById("campoFormaPagamento");
+
+    const formaPagamento =
+        document.getElementById("formaPagamento");
+
+
+    function atualizarFormaPagamento() {
+
+        const tipo =
+            tipoLancamento.value;
+
+
+        /*
+         * CARTÃO DE CRÉDITO:
+         * já sabemos automaticamente
+         * que foi pago com cartão.
+         */
+
+        if (tipo === "CARTAO_CREDITO") {
+
+            formaPagamento.value =
+                "CARTAO_CREDITO";
+
+            formaPagamento.required =
+                false;
+
+            campoFormaPagamento.style.display =
+                "none";
+
+            return;
+        }
+
+
+        /*
+         * OUTRO GASTO:
+         * usuário escolhe se saiu do
+         * saldo da conta ou do cartão.
+         */
+
+        if (tipo === "OUTRO_GASTO") {
+
+            campoFormaPagamento.style.display =
+                "block";
+
+            formaPagamento.required =
+                true;
+
+            return;
+        }
+
+
+        /*
+         * SALÁRIO / RENDA EXTRA / GUARDADO:
+         * não possuem forma de pagamento.
+         */
+
+        campoFormaPagamento.style.display =
+            "none";
+
+        formaPagamento.required =
+            false;
+
+        formaPagamento.value =
+            "";
+    }
+
+
+    tipoLancamento.addEventListener(
+        "change",
+        atualizarFormaPagamento
+    );
+
+
+    atualizarFormaPagamento();
+
+</script>
 
 
 <!-- ====================================== -->

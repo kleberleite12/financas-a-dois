@@ -51,6 +51,11 @@
 
 <div class="container">
 
+
+    <!-- ====================================== -->
+    <!-- TOPO -->
+    <!-- ====================================== -->
+
     <header class="topo">
 
         <div>
@@ -68,8 +73,7 @@
             </h1>
 
             <p>
-                Acompanhe quanto ainda está disponível
-                durante o mês.
+                Acompanhe suas finanças durante o mês.
             </p>
 
         </div>
@@ -147,30 +151,104 @@
 
 
         <!-- ====================================== -->
-        <!-- PAINEL PRINCIPAL DO USUÁRIO LOGADO -->
+        <!-- RESUMO DO MÊS -->
         <!-- ====================================== -->
 
         <section class="painel-mes">
 
             <div class="painel-mes-titulo">
 
-                <div>
+                <span class="marca">
+                    SEU MÊS
+                </span>
 
-                    <span class="marca">
-                        SEU MÊS
-                    </span>
-
-                    <h2>
-                        Quanto ainda posso gastar?
-                    </h2>
-
-                </div>
+                <h2>
+                    Quanto ainda tenho disponível?
+                </h2>
 
             </div>
 
 
             <div class="painel-mes-grid">
 
+
+                <!-- ====================================== -->
+                <!-- TOTAL DISPONÍVEL -->
+                <!-- ====================================== -->
+
+                <div class="disponivel-agora"
+                     style="
+                        grid-column: 1 / -1;
+                        text-align: center;
+                        padding: 28px 20px;
+                     "
+                     th:classappend="${totalDisponivelNegativo}
+                        ? ' disponivel-negativo'
+                        : ''">
+
+
+                    <span>
+                        TOTAL DISPONÍVEL
+                    </span>
+
+
+                    <strong
+                            style="
+                                font-size: 38px;
+                                margin-top: 5px;
+                                margin-bottom: 10px;
+                            "
+                            th:text="${meuTotalDisponivel}">
+
+                        R$ 0,00
+
+                    </strong>
+
+
+                    <p>
+
+                        Disponível das receitas:
+
+                        <strong
+                                style="
+                                    display: inline;
+                                    font-size: inherit;
+                                    color: inherit;
+                                    margin: 0;
+                                "
+                                th:text="${meuDisponivelReceitas}">
+
+                            R$ 0,00
+
+                        </strong>
+
+
+                        &nbsp;•&nbsp;
+
+
+                        Saldo na conta:
+
+                        <strong
+                                style="
+                                    display: inline;
+                                    font-size: inherit;
+                                    color: inherit;
+                                    margin: 0;
+                                "
+                                th:text="${meuSaldoContaAtual}">
+
+                            R$ 0,00
+
+                        </strong>
+
+                    </p>
+
+                </div>
+
+
+                <!-- ====================================== -->
+                <!-- RECEITAS -->
+                <!-- ====================================== -->
 
                 <div class="resumo-mes-item">
 
@@ -185,10 +263,14 @@
                 </div>
 
 
+                <!-- ====================================== -->
+                <!-- GASTOS -->
+                <!-- ====================================== -->
+
                 <div class="resumo-mes-item">
 
                     <span>
-                        Gastos até agora
+                        Gastos do mês
                     </span>
 
                     <strong th:text="${meusGastos}">
@@ -197,6 +279,10 @@
 
                 </div>
 
+
+                <!-- ====================================== -->
+                <!-- GUARDADO -->
+                <!-- ====================================== -->
 
                 <div class="resumo-mes-item">
 
@@ -211,23 +297,45 @@
                 </div>
 
 
-                <div class="disponivel-agora"
-                     th:classappend="${disponivelNegativo}
-                     ? ' disponivel-negativo'
-                     : ''">
+                <!-- ====================================== -->
+                <!-- SALDO NA CONTA -->
+                <!-- ====================================== -->
+
+                <div class="resumo-mes-item">
 
                     <span>
-                        DISPONÍVEL AGORA
+                        Saldo na conta
                     </span>
 
-                    <strong th:text="${meuDisponivelAgora}">
-                        R$ 0,00
-                    </strong>
 
-                    <p>
-                        Este é o valor que ainda resta
-                        considerando tudo que você já lançou.
-                    </p>
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        flex-wrap: wrap;
+                    ">
+
+                        <strong th:text="${meuSaldoContaAtual}">
+                            R$ 0,00
+                        </strong>
+
+
+                        <a class="botao"
+                           style="
+                               padding: 8px 14px;
+                               font-size: 12px;
+                               margin: 0;
+                               min-height: auto;
+                           "
+                           th:href="@{/saldo-conta(
+                                periodo=${periodoAtual}
+                           )}">
+
+                            Gerenciar
+
+                        </a>
+
+                    </div>
 
                 </div>
 
@@ -349,13 +457,23 @@
                     </a>
 
 
-                    <!--
-                    O guardado do Kleber só aparece aqui
-                    quando quem está logado é a Giovanna.
+                    <!-- SALDO NA CONTA -->
 
-                    Quando Kleber está logado, essa informação
-                    já aparece no painel "SEU MÊS".
-                    -->
+                    <div th:if="${nomeUsuario != 'Kleber'}"
+                         class="card destaque saldo">
+
+                        <span>
+                            Saldo na conta
+                        </span>
+
+                        <strong th:text="${kleberSaldoContaAtual}">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+
+                    <!-- GUARDADO -->
 
                     <a th:if="${nomeUsuario != 'Kleber'}"
                        class="card destaque guardado card-link"
@@ -376,19 +494,16 @@
                     </a>
 
 
-                    <!--
-                    O disponível do Kleber só aparece aqui
-                    quando a Giovanna está logada.
-                    -->
+                    <!-- TOTAL DISPONÍVEL -->
 
                     <div th:if="${nomeUsuario != 'Kleber'}"
                          class="card destaque saldo">
 
                         <span>
-                            Disponível agora
+                            Total disponível
                         </span>
 
-                        <strong th:text="${kleberSaldo}">
+                        <strong th:text="${kleberTotalDisponivel}">
                             R$ 0,00
                         </strong>
 
@@ -397,7 +512,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- META KLEBER -->
+                <!-- ====================================== -->
 
                 <div class="card pessoa">
 
@@ -421,6 +538,7 @@
 
                         </p>
 
+
                         <br>
 
 
@@ -432,8 +550,17 @@
 
                         <p>
 
-                            <strong th:text="${#numbers.formatDecimal(kleberPercentualMeta, 1, 'POINT', 1, 'COMMA')} + '%'">
+                            <strong
+                                    th:text="${#numbers.formatDecimal(
+                                        kleberPercentualMeta,
+                                        1,
+                                        'POINT',
+                                        1,
+                                        'COMMA'
+                                    )} + '%'">
+
                                 0%
+
                             </strong>
 
                             concluído
@@ -553,10 +680,23 @@
                     </a>
 
 
-                    <!--
-                    O guardado da Giovanna só aparece aqui
-                    quando quem está logado é o Kleber.
-                    -->
+                    <!-- SALDO NA CONTA -->
+
+                    <div th:if="${nomeUsuario != 'Giovanna'}"
+                         class="card destaque saldo">
+
+                        <span>
+                            Saldo na conta
+                        </span>
+
+                        <strong th:text="${giovannaSaldoContaAtual}">
+                            R$ 0,00
+                        </strong>
+
+                    </div>
+
+
+                    <!-- GUARDADO -->
 
                     <a th:if="${nomeUsuario != 'Giovanna'}"
                        class="card destaque guardado card-link"
@@ -577,19 +717,16 @@
                     </a>
 
 
-                    <!--
-                    O disponível da Giovanna só aparece aqui
-                    quando Kleber está logado.
-                    -->
+                    <!-- TOTAL DISPONÍVEL -->
 
                     <div th:if="${nomeUsuario != 'Giovanna'}"
                          class="card destaque saldo">
 
                         <span>
-                            Disponível agora
+                            Total disponível
                         </span>
 
-                        <strong th:text="${giovannaSaldo}">
+                        <strong th:text="${giovannaTotalDisponivel}">
                             R$ 0,00
                         </strong>
 
@@ -598,7 +735,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- META GIOVANNA -->
+                <!-- ====================================== -->
 
                 <div class="card pessoa">
 
@@ -622,6 +761,7 @@
 
                         </p>
 
+
                         <br>
 
 
@@ -633,8 +773,17 @@
 
                         <p>
 
-                            <strong th:text="${#numbers.formatDecimal(giovannaPercentualMeta, 1, 'POINT', 1, 'COMMA')} + '%'">
+                            <strong
+                                    th:text="${#numbers.formatDecimal(
+                                        giovannaPercentualMeta,
+                                        1,
+                                        'POINT',
+                                        1,
+                                        'COMMA'
+                                    )} + '%'">
+
                                 0%
+
                             </strong>
 
                             concluído
@@ -646,7 +795,6 @@
                 </div>
 
             </section>
-
 
         </div>
 
@@ -660,7 +808,6 @@
 <!-- ====================================== -->
 
 <script src="/js/pwa.js"></script>
-
 
 </body>
 

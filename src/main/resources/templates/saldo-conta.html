@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Saldo na Conta | Finanças a Dois
+    </title>
+
+
+    <!-- ====================================== -->
+    <!-- PWA -->
+    <!-- ====================================== -->
+
+    <link rel="manifest"
+          href="/manifest.webmanifest">
+
+    <meta name="theme-color"
+          content="#6f67e8">
+
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="default">
+
+    <meta name="apple-mobile-web-app-title"
+          content="Finanças">
+
+    <link rel="apple-touch-icon"
+          href="/icons/icon-192.png">
+
+
+    <!-- ====================================== -->
+    <!-- ESTILO -->
+    <!-- ====================================== -->
+
+    <link rel="stylesheet"
+          href="/css/style.css">
+
+</head>
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- ====================================== -->
+    <!-- TOPO -->
+    <!-- ====================================== -->
+
+    <header class="topo">
+
+        <div>
+
+            <span class="marca">
+                FINANÇAS A DOIS
+            </span>
+
+
+            <h1>
+                Saldo na conta
+            </h1>
+
+
+            <p>
+                Acompanhe quanto havia na conta,
+                quanto já foi usado e quanto ainda resta.
+            </p>
+
+        </div>
+
+
+        <a class="botao"
+           th:href="@{/}">
+
+            Dashboard
+
+        </a>
+
+    </header>
+
+
+    <main>
+
+
+        <!-- ====================================== -->
+        <!-- RESUMO DO SALDO -->
+        <!-- ====================================== -->
+
+        <section class="destaques"
+                 style="
+                    grid-template-columns:
+                    repeat(3, 1fr);
+                    margin-bottom: 30px;
+                 ">
+
+
+            <!-- SALDO INICIAL -->
+
+            <div class="card destaque saldo">
+
+                <span>
+                    Saldo inicial
+                </span>
+
+                <strong th:text="${valorInicialFormatado}">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <!-- USADO -->
+
+            <div class="card destaque gasto">
+
+                <span>
+                    Usado neste mês
+                </span>
+
+                <strong th:text="${valorUsadoFormatado}">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <!-- SALDO ATUAL -->
+
+            <div class="card destaque"
+                 th:classappend="${saldoNegativo}
+                    ? ' gasto'
+                    : ' receita'">
+
+                <span>
+                    Saldo atual
+                </span>
+
+                <strong th:text="${valorAtualFormatado}">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- FORMULÁRIO -->
+        <!-- ====================================== -->
+
+        <section class="formulario">
+
+
+            <h2>
+                Gerenciar saldo de
+                <span th:text="${nomeUsuario}">
+                    Usuário
+                </span>
+            </h2>
+
+
+            <p style="
+                color: #7d879b;
+                line-height: 1.5;
+                margin-bottom: 24px;
+            ">
+
+                O valor abaixo representa quanto já havia
+                disponível na sua conta no início do mês.
+
+                Os gastos cadastrados como
+                <strong>Pago com: Saldo na conta</strong>
+                são descontados automaticamente.
+
+            </p>
+
+
+            <!-- ====================================== -->
+            <!-- ERRO -->
+            <!-- ====================================== -->
+
+            <div class="mensagem erro"
+                 th:if="${mensagemErro}"
+                 th:text="${mensagemErro}">
+
+                Ocorreu um erro.
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- FORMULÁRIO DE SALDO -->
+            <!-- ====================================== -->
+
+            <form th:action="@{/saldo-conta}"
+                  method="post">
+
+
+                <!-- MÊS -->
+
+                <div class="campo">
+
+                    <label for="periodo">
+                        Mês e ano *
+                    </label>
+
+
+                    <input id="periodo"
+                           type="month"
+                           name="periodo"
+                           th:value="${periodoSaldo}"
+                           onclick="if (this.showPicker) this.showPicker();"
+                           style="cursor: pointer;"
+                           required>
+
+                </div>
+
+
+                <!-- SALDO INICIAL -->
+
+                <div class="campo">
+
+                    <label for="valorInicial">
+                        Saldo inicial da conta *
+                    </label>
+
+
+                    <input id="valorInicial"
+                           type="number"
+                           name="valorInicial"
+                           step="0.01"
+                           min="0"
+                           max="99999999.99"
+                           th:value="${valorInicial}"
+                           placeholder="Ex.: 500,00"
+                           required>
+
+
+                    <small style="
+                        display: block;
+                        margin-top: 7px;
+                        color: #7d879b;
+                        line-height: 1.4;
+                    ">
+
+                        Altere apenas se o valor que havia
+                        no início do mês estiver incorreto.
+
+                    </small>
+
+                </div>
+
+
+                <!-- ====================================== -->
+                <!-- AÇÕES -->
+                <!-- ====================================== -->
+
+                <div style="
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                ">
+
+                    <button class="botao-principal"
+                            type="submit">
+
+                        Salvar saldo
+
+                    </button>
+
+
+                    <a class="botao"
+                       th:href="@{/}">
+
+                        Cancelar
+
+                    </a>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+<!-- ====================================== -->
+<!-- PWA -->
+<!-- ====================================== -->
+
+<script src="/js/pwa.js"></script>
+
+
+</body>
+
+</html>
