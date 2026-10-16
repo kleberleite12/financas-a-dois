@@ -74,8 +74,8 @@
 
 
             <p>
-                Acompanhe quanto havia na conta,
-                quanto já foi usado e quanto ainda resta.
+                Gerencie o dinheiro que já estava na conta
+                e transfira sobras das receitas para o saldo.
             </p>
 
         </div>
@@ -95,13 +95,13 @@
 
 
         <!-- ====================================== -->
-        <!-- RESUMO DO SALDO -->
+        <!-- RESUMO -->
         <!-- ====================================== -->
 
         <section class="destaques"
                  style="
                     grid-template-columns:
-                    repeat(3, 1fr);
+                    repeat(4, 1fr);
                     margin-bottom: 30px;
                  ">
 
@@ -115,6 +115,21 @@
                 </span>
 
                 <strong th:text="${valorInicialFormatado}">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <!-- TRANSFERIDO -->
+
+            <div class="card destaque guardado">
+
+                <span>
+                    Transferido das receitas
+                </span>
+
+                <strong th:text="${valorTransferidoFormatado}">
                     R$ 0,00
                 </strong>
 
@@ -157,17 +172,155 @@
 
 
         <!-- ====================================== -->
-        <!-- FORMULÁRIO -->
+        <!-- TRANSFERIR PARA SALDO -->
         <!-- ====================================== -->
 
         <section class="formulario">
 
 
             <h2>
-                Gerenciar saldo de
-                <span th:text="${nomeUsuario}">
-                    Usuário
+                Transferir para Saldo na conta
+            </h2>
+
+
+            <p style="
+                color: #7d879b;
+                line-height: 1.5;
+                margin-bottom: 20px;
+            ">
+
+                Você pode mover parte do dinheiro que ainda
+                está disponível nas receitas deste mês para
+                o Saldo na conta.
+
+                O seu total disponível continuará o mesmo.
+
+            </p>
+
+
+            <div style="
+                background:
+                    linear-gradient(
+                        135deg,
+                        #f0f3ff,
+                        #f8f2ff
+                    );
+                padding: 18px;
+                border-radius: 15px;
+                margin-bottom: 22px;
+            ">
+
+                <span style="
+                    display: block;
+                    color: #8278a4;
+                    font-size: 12px;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                ">
+
+                    DISPONÍVEL NAS RECEITAS
+
                 </span>
+
+
+                <strong style="
+                    font-size: 26px;
+                    color: #594ab7;
+                "
+                        th:text="${disponivelReceitasFormatado}">
+
+                    R$ 0,00
+
+                </strong>
+
+            </div>
+
+
+            <!-- ERRO DA TRANSFERÊNCIA -->
+
+            <div class="mensagem erro"
+                 th:if="${mensagemErroTransferencia}"
+                 th:text="${mensagemErroTransferencia}">
+
+                Ocorreu um erro.
+
+            </div>
+
+
+            <form th:if="${podeTransferir}"
+                  th:action="@{/saldo-conta/transferir}"
+                  method="post">
+
+
+                <input type="hidden"
+                       name="periodo"
+                       th:value="${periodoSaldo}">
+
+
+                <div class="campo">
+
+                    <label for="valorTransferencia">
+                        Valor a transferir *
+                    </label>
+
+
+                    <input id="valorTransferencia"
+                           type="number"
+                           name="valorTransferencia"
+                           step="0.01"
+                           min="0.01"
+                           max="99999999.99"
+                           th:value="${valorTransferencia}"
+                           placeholder="Ex.: 325,22"
+                           required>
+
+
+                    <small style="
+                        display: block;
+                        margin-top: 7px;
+                        color: #7d879b;
+                        line-height: 1.4;
+                    ">
+
+                        O valor será retirado do disponível
+                        das receitas e adicionado ao
+                        Saldo na conta.
+
+                    </small>
+
+                </div>
+
+
+                <button class="botao-principal"
+                        type="submit">
+
+                    Transferir para Saldo na conta
+
+                </button>
+
+            </form>
+
+
+            <div th:if="${!podeTransferir}"
+                 class="estado-vazio">
+
+                Não há valor disponível nas receitas
+                para transferir neste momento.
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- EDITAR SALDO INICIAL -->
+        <!-- ====================================== -->
+
+        <section class="formulario">
+
+
+            <h2>
+                Saldo inicial
             </h2>
 
 
@@ -177,19 +330,16 @@
                 margin-bottom: 24px;
             ">
 
-                O valor abaixo representa quanto já havia
-                disponível na sua conta no início do mês.
+                Este valor representa o dinheiro que já
+                existia na sua conta no início do mês.
 
-                Os gastos cadastrados como
-                <strong>Pago com: Saldo na conta</strong>
-                são descontados automaticamente.
+                Só altere este campo se o saldo inicial
+                estiver incorreto.
 
             </p>
 
 
-            <!-- ====================================== -->
             <!-- ERRO -->
-            <!-- ====================================== -->
 
             <div class="mensagem erro"
                  th:if="${mensagemErro}"
@@ -199,10 +349,6 @@
 
             </div>
 
-
-            <!-- ====================================== -->
-            <!-- FORMULÁRIO DE SALDO -->
-            <!-- ====================================== -->
 
             <form th:action="@{/saldo-conta}"
                   method="post">
@@ -247,25 +393,8 @@
                            placeholder="Ex.: 500,00"
                            required>
 
-
-                    <small style="
-                        display: block;
-                        margin-top: 7px;
-                        color: #7d879b;
-                        line-height: 1.4;
-                    ">
-
-                        Altere apenas se o valor que havia
-                        no início do mês estiver incorreto.
-
-                    </small>
-
                 </div>
 
-
-                <!-- ====================================== -->
-                <!-- AÇÕES -->
-                <!-- ====================================== -->
 
                 <div style="
                     display: flex;
@@ -276,7 +405,7 @@
                     <button class="botao-principal"
                             type="submit">
 
-                        Salvar saldo
+                        Salvar saldo inicial
 
                     </button>
 
@@ -284,12 +413,11 @@
                     <a class="botao"
                        th:href="@{/}">
 
-                        Cancelar
+                        Voltar ao dashboard
 
                     </a>
 
                 </div>
-
 
             </form>
 

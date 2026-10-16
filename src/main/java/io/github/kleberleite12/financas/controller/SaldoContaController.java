@@ -81,7 +81,7 @@ public class SaldoContaController {
 
 
     // =========================================
-    // SALVAR SALDO
+    // SALVAR SALDO INICIAL
     // =========================================
 
     @PostMapping("/saldo-conta")
@@ -135,7 +135,7 @@ public class SaldoContaController {
 
 
         String erroValidacao =
-                validarValor(
+                validarValorInicial(
                         valorInicial
                 );
 
@@ -191,15 +191,222 @@ public class SaldoContaController {
         );
 
 
+        /*
+         * Se for um registro novo,
+         * iniciamos as transferências em zero.
+         *
+         * Se já existir, preservamos aquilo
+         * que já foi transferido.
+         */
+        if (saldoConta.getValorTransferido() == null) {
+
+            saldoConta.setValorTransferido(
+                    BigDecimal.ZERO
+            );
+        }
+
+
         saldoContaRepository.save(
                 saldoConta
         );
 
 
-        return "redirect:/?ano="
-                + periodoSelecionado.getYear()
-                + "&mes="
-                + periodoSelecionado.getMonthValue();
+        return "redirect:/saldo-conta?periodo="
+                + periodoSelecionado;
+    }
+
+
+    // =========================================
+    // TRANSFERIR DAS RECEITAS PARA O SALDO
+    // =========================================
+
+    @PostMapping("/saldo-conta/transferir")
+    public String transferirParaSaldo(
+            @RequestParam String periodo,
+            @RequestParam BigDecimal valorTransferencia,
+
+            Authentication authentication,
+            Model model) {
+
+
+        String nomeUsuario =
+                formatarNomeUsuario(
+                        authentication.getName()
+                );
+
+
+        YearMonth periodoSelecionado;
+
+
+        try {
+
+            periodoSelecionado =
+                    YearMonth.parse(
+                            periodo
+                    );
+
+        } catch (Exception erro) {
+
+            carregarDadosTela(
+                    model,
+                    nomeUsuario,
+                    YearMonth.now()
+            );
+
+
+            model.addAttribute(
+                    "mensagemErroTransferencia",
+                    "Mês e ano inválidos."
+            );
+
+
+            return "saldo-conta";
+        }
+
+
+        String erroValidacao =
+                validarTransferencia(
+                        valorTransferencia
+                );
+
+
+        if (erroValidacao != null) {
+
+            carregarDadosTela(
+                    model,
+                    nomeUsuario,
+                    periodoSelecionado
+            );
+
+
+            model.addAttribute(
+                    "valorTransferencia",
+                    valorTransferencia
+            );
+
+
+            model.addAttribute(
+                    "mensagemErroTransferencia",
+                    erroValidacao
+            );
+
+
+            return "saldo-conta";
+        }
+
+
+        LocalDate inicioMes =
+                periodoSelecionado.atDay(1);
+
+
+        LocalDate fimMes =
+                periodoSelecionado.atEndOfMonth();
+
+
+        List<Lancamento> lancamentosMes =
+                lancamentoRepository
+                        .findByDataBetween(
+                                inicioMes,
+                                fimMes
+                        );
+
+
+        SaldoConta saldoConta =
+                saldoContaRepository
+                        .findByResponsavelIgnoreCaseAndPeriodo(
+                                nomeUsuario,
+                                inicioMes
+                        )
+                        .orElseGet(
+                                SaldoConta::new
+                        );
+
+
+        BigDecimal transferidoAtual =
+                saldoConta.getValorTransferido();
+
+
+        BigDecimal disponivelReceitas =
+                calcularDisponivelReceitas(
+                        lancamentosMes,
+                        nomeUsuario,
+                        transferidoAtual
+                );
+
+
+        /*
+         * Impede transferir dinheiro
+         * que não existe nas receitas.
+         */
+        if (valorTransferencia.compareTo(
+                disponivelReceitas
+        ) > 0) {
+
+
+            carregarDadosTela(
+                    model,
+                    nomeUsuario,
+                    periodoSelecionado
+            );
+
+
+            model.addAttribute(
+                    "valorTransferencia",
+                    valorTransferencia
+            );
+
+
+            model.addAttribute(
+                    "mensagemErroTransferencia",
+                    "Você não pode transferir mais do que possui disponível nas receitas."
+            );
+
+
+            return "saldo-conta";
+        }
+
+
+        /*
+         * Se ainda não existia registro de saldo
+         * para o mês, criamos um começando em zero.
+         */
+        saldoConta.setResponsavel(
+                nomeUsuario
+        );
+
+
+        saldoConta.setPeriodo(
+                inicioMes
+        );
+
+
+        if (saldoConta.getValorInicial() == null) {
+
+            saldoConta.setValorInicial(
+                    BigDecimal.ZERO
+            );
+        }
+
+
+        /*
+         * Soma a nova transferência
+         * ao que já havia sido transferido.
+         */
+        saldoConta.setValorTransferido(
+
+                transferidoAtual.add(
+                        valorTransferencia
+                )
+        );
+
+
+        saldoContaRepository.save(
+                saldoConta
+        );
+
+
+        return "redirect:/saldo-conta?periodo="
+                + periodoSelecionado;
     }
 
 
@@ -221,18 +428,36 @@ public class SaldoContaController {
                 periodo.atEndOfMonth();
 
 
-        BigDecimal valorInicial =
+        SaldoConta saldoConta =
                 saldoContaRepository
                         .findByResponsavelIgnoreCaseAndPeriodo(
                                 nomeUsuario,
                                 inicioMes
                         )
-                        .map(
-                                SaldoConta::getValorInicial
-                        )
-                        .orElse(
-                                BigDecimal.ZERO
-                        );
+                        .orElse(null);
+
+
+        BigDecimal valorInicial =
+                saldoConta != null
+
+                        ? saldoConta.getValorInicial()
+
+                        : BigDecimal.ZERO;
+
+
+        if (valorInicial == null) {
+
+            valorInicial =
+                    BigDecimal.ZERO;
+        }
+
+
+        BigDecimal valorTransferido =
+                saldoConta != null
+
+                        ? saldoConta.getValorTransferido()
+
+                        : BigDecimal.ZERO;
 
 
         List<Lancamento> lancamentosMes =
@@ -250,11 +475,33 @@ public class SaldoContaController {
                 );
 
 
+        /*
+         * SALDO ATUAL:
+         *
+         * saldo inicial
+         * + transferências
+         * - gastos pagos com saldo
+         */
         BigDecimal valorAtual =
                 valorInicial
+                        .add(
+                                valorTransferido
+                        )
                         .subtract(
                                 valorUsado
                         );
+
+
+        /*
+         * Quanto ainda pode ser movido
+         * das receitas para o saldo.
+         */
+        BigDecimal disponivelReceitas =
+                calcularDisponivelReceitas(
+                        lancamentosMes,
+                        nomeUsuario,
+                        valorTransferido
+                );
 
 
         model.addAttribute(
@@ -284,6 +531,14 @@ public class SaldoContaController {
 
 
         model.addAttribute(
+                "valorTransferidoFormatado",
+                formatarMoeda(
+                        valorTransferido
+                )
+        );
+
+
+        model.addAttribute(
                 "valorUsadoFormatado",
                 formatarMoeda(
                         valorUsado
@@ -300,6 +555,23 @@ public class SaldoContaController {
 
 
         model.addAttribute(
+                "disponivelReceitasFormatado",
+                formatarMoeda(
+                        disponivelReceitas
+                )
+        );
+
+
+        model.addAttribute(
+                "podeTransferir",
+                disponivelReceitas
+                        .compareTo(
+                                BigDecimal.ZERO
+                        ) > 0
+        );
+
+
+        model.addAttribute(
                 "saldoNegativo",
                 valorAtual
                         .compareTo(
@@ -310,7 +582,143 @@ public class SaldoContaController {
 
 
     // =========================================
-    // CALCULAR VALOR USADO
+    // CALCULAR DISPONÍVEL DAS RECEITAS
+    // =========================================
+
+    private BigDecimal calcularDisponivelReceitas(
+            List<Lancamento> lancamentos,
+            String nomeUsuario,
+            BigDecimal valorTransferido) {
+
+
+        BigDecimal rendaPrincipal =
+                somar(
+                        lancamentos,
+                        nomeUsuario,
+                        TipoLancamento.RENDA_PRINCIPAL,
+                        TipoLancamento.RECEITA
+                );
+
+
+        BigDecimal rendaExtra =
+                somar(
+                        lancamentos,
+                        nomeUsuario,
+                        TipoLancamento.RENDA_EXTRA
+                );
+
+
+        BigDecimal cartaoCredito =
+                somar(
+                        lancamentos,
+                        nomeUsuario,
+                        TipoLancamento.CARTAO_CREDITO,
+                        TipoLancamento.GASTO
+                );
+
+
+        BigDecimal outrosGastos =
+                somar(
+                        lancamentos,
+                        nomeUsuario,
+                        TipoLancamento.OUTRO_GASTO
+                );
+
+
+        BigDecimal guardado =
+                somar(
+                        lancamentos,
+                        nomeUsuario,
+                        TipoLancamento.GUARDADO
+                );
+
+
+        BigDecimal gastosSaldoConta =
+                calcularValorUsado(
+                        lancamentos,
+                        nomeUsuario
+                );
+
+
+        /*
+         * Gastos que saíram do saldo
+         * não podem ser descontados
+         * também das receitas.
+         */
+        BigDecimal outrosGastosReceitas =
+                outrosGastos
+                        .subtract(
+                                gastosSaldoConta
+                        );
+
+
+        return rendaPrincipal
+                .add(
+                        rendaExtra
+                )
+                .subtract(
+                        cartaoCredito
+                )
+                .subtract(
+                        outrosGastosReceitas
+                )
+                .subtract(
+                        guardado
+                )
+                .subtract(
+                        valorTransferido
+                );
+    }
+
+
+    // =========================================
+    // SOMAR LANÇAMENTOS
+    // =========================================
+
+    private BigDecimal somar(
+            List<Lancamento> lancamentos,
+            String nomeUsuario,
+            TipoLancamento... tipos) {
+
+
+        return lancamentos
+                .stream()
+
+                .filter(lancamento ->
+                        nomeUsuario
+                                .equalsIgnoreCase(
+                                        lancamento.getResponsavel()
+                                )
+                )
+
+                .filter(lancamento -> {
+
+                    for (TipoLancamento tipo : tipos) {
+
+                        if (lancamento.getTipo()
+                                == tipo) {
+
+                            return true;
+                        }
+                    }
+
+
+                    return false;
+                })
+
+                .map(
+                        Lancamento::getValor
+                )
+
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                );
+    }
+
+
+    // =========================================
+    // CALCULAR VALOR USADO DO SALDO
     // =========================================
 
     private BigDecimal calcularValorUsado(
@@ -350,10 +758,10 @@ public class SaldoContaController {
 
 
     // =========================================
-    // VALIDAÇÃO
+    // VALIDAR SALDO INICIAL
     // =========================================
 
-    private String validarValor(
+    private String validarValorInicial(
             BigDecimal valor) {
 
 
@@ -394,6 +802,50 @@ public class SaldoContaController {
 
 
     // =========================================
+    // VALIDAR TRANSFERÊNCIA
+    // =========================================
+
+    private String validarTransferencia(
+            BigDecimal valor) {
+
+
+        if (valor == null) {
+
+            return "Informe o valor que deseja transferir.";
+        }
+
+
+        if (valor.compareTo(
+                BigDecimal.ZERO
+        ) <= 0) {
+
+            return "O valor da transferência deve ser maior que zero.";
+        }
+
+
+        if (valor.compareTo(
+                VALOR_MAXIMO
+        ) > 0) {
+
+            return "O valor informado é muito alto.";
+        }
+
+
+        BigDecimal valorNormalizado =
+                valor.stripTrailingZeros();
+
+
+        if (valorNormalizado.scale() > 2) {
+
+            return "A transferência pode ter no máximo duas casas decimais.";
+        }
+
+
+        return null;
+    }
+
+
+    // =========================================
     // PERÍODO
     // =========================================
 
@@ -422,7 +874,7 @@ public class SaldoContaController {
 
 
     // =========================================
-    // FORMATAÇÃO DE MOEDA
+    // FORMATAR MOEDA
     // =========================================
 
     private String formatarMoeda(
@@ -445,7 +897,7 @@ public class SaldoContaController {
 
 
     // =========================================
-    // USUÁRIO
+    // FORMATAR USUÁRIO
     // =========================================
 
     private String formatarNomeUsuario(

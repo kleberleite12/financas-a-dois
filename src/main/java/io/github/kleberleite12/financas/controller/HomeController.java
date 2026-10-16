@@ -45,14 +45,14 @@ public class HomeController {
     }
 
 
+    // =========================================
+    // DASHBOARD
+    // =========================================
+
     @GetMapping("/")
     public String home(
-            @RequestParam(required = false)
-            Integer ano,
-
-            @RequestParam(required = false)
-            Integer mes,
-
+            @RequestParam(required = false) Integer ano,
+            @RequestParam(required = false) Integer mes,
             Authentication authentication,
             Model model) {
 
@@ -114,7 +114,7 @@ public class HomeController {
 
 
         // =========================================
-        // DADOS DAS PESSOAS
+        // KLEBER
         // =========================================
 
         DadosFinanceiros kleber =
@@ -125,6 +125,10 @@ public class HomeController {
                         inicioMes
                 );
 
+
+        // =========================================
+        // GIOVANNA
+        // =========================================
 
         DadosFinanceiros giovanna =
                 calcularDados(
@@ -187,10 +191,9 @@ public class HomeController {
                         )
                         .toUpperCase()
 
-                        + nomeMes
-                        .substring(
-                                1
-                        );
+                        + nomeMes.substring(
+                        1
+                );
 
 
         // =========================================
@@ -264,7 +267,7 @@ public class HomeController {
 
 
         // =========================================
-        // PAINEL DO USUÁRIO
+        // RESUMO DO USUÁRIO LOGADO
         // =========================================
 
         BigDecimal minhasReceitas =
@@ -320,6 +323,14 @@ public class HomeController {
 
 
         model.addAttribute(
+                "meuValorTransferido",
+                formatarMoeda(
+                        usuarioAtual.valorTransferido()
+                )
+        );
+
+
+        model.addAttribute(
                 "meusGastosSaldoConta",
                 formatarMoeda(
                         usuarioAtual.gastosSaldoConta()
@@ -370,11 +381,9 @@ public class HomeController {
 
 
         /*
-         * Mantemos esses dois atributos antigos
-         * temporariamente para não quebrar o HTML
-         * antes da próxima alteração.
+         * Mantidos por compatibilidade
+         * com telas e testes existentes.
          */
-
         model.addAttribute(
                 "meuDisponivelAgora",
                 formatarMoeda(
@@ -410,7 +419,7 @@ public class HomeController {
 
 
     // =========================================
-    // CALCULAR DADOS
+    // CALCULAR DADOS FINANCEIROS
     // =========================================
 
     private DadosFinanceiros calcularDados(
@@ -475,21 +484,38 @@ public class HomeController {
 
 
         // =========================================
-        // SALDO NA CONTA INICIAL
+        // DADOS DO SALDO NA CONTA
         // =========================================
 
-        BigDecimal saldoContaInicial =
+        SaldoConta saldoConta =
                 saldoContaRepository
                         .findByResponsavelIgnoreCaseAndPeriodo(
                                 responsavel,
                                 inicioMes
                         )
-                        .map(
-                                SaldoConta::getValorInicial
-                        )
-                        .orElse(
-                                BigDecimal.ZERO
-                        );
+                        .orElse(null);
+
+
+        BigDecimal saldoContaInicial =
+                BigDecimal.ZERO;
+
+
+        BigDecimal valorTransferido =
+                BigDecimal.ZERO;
+
+
+        if (saldoConta != null) {
+
+            if (saldoConta.getValorInicial() != null) {
+
+                saldoContaInicial =
+                        saldoConta.getValorInicial();
+            }
+
+
+            valorTransferido =
+                    saldoConta.getValorTransferido();
+        }
 
 
         // =========================================
@@ -507,17 +533,35 @@ public class HomeController {
         // SALDO NA CONTA ATUAL
         // =========================================
 
+        /*
+         * saldo atual
+         * =
+         * saldo inicial
+         * + dinheiro transferido das receitas
+         * - gastos pagos com saldo
+         */
         BigDecimal saldoContaAtual =
                 saldoContaInicial
+                        .add(
+                                valorTransferido
+                        )
                         .subtract(
                                 gastosSaldoConta
                         );
 
 
         // =========================================
-        // OUTROS GASTOS PAGOS COM RECEITAS
+        // OUTROS GASTOS DAS RECEITAS
         // =========================================
 
+        /*
+         * "outrosGastos" também contém gastos
+         * pagos usando Saldo na conta.
+         *
+         * Esses gastos precisam ser retirados
+         * daqui para não serem descontados
+         * duas vezes.
+         */
         BigDecimal outrosGastosDasReceitas =
                 outrosGastos
                         .subtract(
@@ -529,6 +573,11 @@ public class HomeController {
         // DISPONÍVEL DAS RECEITAS
         // =========================================
 
+        /*
+         * Agora também descontamos aquilo
+         * que foi transferido para
+         * Saldo na conta.
+         */
         BigDecimal disponivelReceitas =
                 rendaPrincipal
                         .add(
@@ -542,6 +591,9 @@ public class HomeController {
                         )
                         .subtract(
                                 guardadoMes
+                        )
+                        .subtract(
+                                valorTransferido
                         );
 
 
@@ -549,6 +601,12 @@ public class HomeController {
         // TOTAL DISPONÍVEL
         // =========================================
 
+        /*
+         * O valor transferido sai das receitas
+         * e entra no saldo.
+         *
+         * Portanto, o TOTAL não muda.
+         */
         BigDecimal totalDisponivel =
                 disponivelReceitas
                         .add(
@@ -557,7 +615,7 @@ public class HomeController {
 
 
         // =========================================
-        // META
+        // META ACUMULADA
         // =========================================
 
         BigDecimal guardadoAcumulado =
@@ -601,6 +659,7 @@ public class HomeController {
                 percentualMeta,
                 percentualBarra,
                 saldoContaInicial,
+                valorTransferido,
                 gastosSaldoConta,
                 saldoContaAtual,
                 disponivelReceitas,
@@ -623,7 +682,8 @@ public class HomeController {
                 .stream()
 
                 .filter(lancamento ->
-                        lancamento
+                        lancamento.getResponsavel() != null
+                                && lancamento
                                 .getResponsavel()
                                 .equalsIgnoreCase(
                                         responsavel
@@ -641,6 +701,7 @@ public class HomeController {
                         }
                     }
 
+
                     return false;
                 })
 
@@ -656,7 +717,7 @@ public class HomeController {
 
 
     // =========================================
-    // GASTOS DO SALDO NA CONTA
+    // GASTOS PAGOS COM SALDO
     // =========================================
 
     private BigDecimal somarGastosSaldoConta(
@@ -668,7 +729,8 @@ public class HomeController {
                 .stream()
 
                 .filter(lancamento ->
-                        lancamento
+                        lancamento.getResponsavel() != null
+                                && lancamento
                                 .getResponsavel()
                                 .equalsIgnoreCase(
                                         responsavel
@@ -697,7 +759,7 @@ public class HomeController {
 
 
     // =========================================
-    // DADOS DA PESSOA
+    // ADICIONAR DADOS DA PESSOA
     // =========================================
 
     private void adicionarDadosPessoa(
@@ -775,13 +837,21 @@ public class HomeController {
 
 
         // =========================================
-        // SALDO NA CONTA
+        // SALDO
         // =========================================
 
         model.addAttribute(
                 prefixo + "SaldoContaInicial",
                 formatarMoeda(
                         dados.saldoContaInicial()
+                )
+        );
+
+
+        model.addAttribute(
+                prefixo + "ValorTransferido",
+                formatarMoeda(
+                        dados.valorTransferido()
                 )
         );
 
@@ -802,10 +872,6 @@ public class HomeController {
         );
 
 
-        // =========================================
-        // DISPONÍVEL
-        // =========================================
-
         model.addAttribute(
                 prefixo + "DisponivelReceitas",
                 formatarMoeda(
@@ -823,9 +889,8 @@ public class HomeController {
 
 
         /*
-         * Compatibilidade temporária com o HTML antigo.
+         * Compatibilidade com páginas antigas.
          */
-
         model.addAttribute(
                 prefixo + "Saldo",
                 formatarMoeda(
@@ -836,7 +901,7 @@ public class HomeController {
 
 
     // =========================================
-    // MOEDA
+    // FORMATAR MOEDA
     // =========================================
 
     private String formatarMoeda(
@@ -859,7 +924,7 @@ public class HomeController {
 
 
     // =========================================
-    // USUÁRIO
+    // FORMATAR USUÁRIO
     // =========================================
 
     private String formatarNomeUsuario(
@@ -911,6 +976,8 @@ public class HomeController {
             BigDecimal percentualBarra,
 
             BigDecimal saldoContaInicial,
+
+            BigDecimal valorTransferido,
 
             BigDecimal gastosSaldoConta,
 
