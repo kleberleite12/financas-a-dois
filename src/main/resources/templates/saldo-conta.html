@@ -41,11 +41,99 @@
 
 
     <!-- ====================================== -->
-    <!-- ESTILO -->
+    <!-- ESTILO PRINCIPAL -->
     <!-- ====================================== -->
 
     <link rel="stylesheet"
           href="/css/style.css">
+
+
+    <!-- ====================================== -->
+    <!-- AJUSTES EXCLUSIVOS DESTA TELA -->
+    <!-- ====================================== -->
+
+    <style>
+
+        /* COMPUTADOR */
+
+        .saldo-resumo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+
+        .saldo-resumo-grid .destaque {
+            min-width: 0;
+        }
+
+
+        /* TABLET */
+
+        @media (max-width: 900px) {
+
+            .saldo-resumo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+
+        /* CELULAR */
+
+        @media (max-width: 650px) {
+
+            .saldo-resumo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 22px;
+            }
+
+
+            .saldo-resumo-grid .destaque {
+                padding: 16px;
+                min-height: 115px;
+            }
+
+
+            .saldo-resumo-grid .destaque span {
+                font-size: 12px;
+                line-height: 1.25;
+                margin-bottom: 8px;
+            }
+
+
+            .saldo-resumo-grid .destaque strong {
+                font-size: 20px;
+                white-space: nowrap;
+            }
+
+
+            .formulario h2 {
+                font-size: 20px;
+                line-height: 1.25;
+            }
+
+
+            .formulario p {
+                font-size: 14px;
+            }
+
+        }
+
+
+        /* CELULARES MUITO PEQUENOS */
+
+        @media (max-width: 360px) {
+
+            .saldo-resumo-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -98,12 +186,7 @@
         <!-- RESUMO -->
         <!-- ====================================== -->
 
-        <section class="destaques"
-                 style="
-                    grid-template-columns:
-                    repeat(4, 1fr);
-                    margin-bottom: 30px;
-                 ">
+        <section class="saldo-resumo-grid">
 
 
             <!-- SALDO INICIAL -->

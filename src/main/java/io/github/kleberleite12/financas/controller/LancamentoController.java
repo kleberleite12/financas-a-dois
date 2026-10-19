@@ -46,6 +46,7 @@ public class LancamentoController {
 
     private static final List<FormaPagamento> FORMAS_PAGAMENTO_GASTO =
             List.of(
+                    FormaPagamento.RECEITAS_DO_MES,
                     FormaPagamento.SALDO_NA_CONTA,
                     FormaPagamento.CARTAO_CREDITO
             );
@@ -403,9 +404,6 @@ public class LancamentoController {
         /*
          * Registros antigos de cartão ainda não possuem
          * formaPagamento gravada.
-         *
-         * Como já sabemos que eram compras no cartão,
-         * preenchemos automaticamente.
          */
 
         if (lancamento.getTipo()
@@ -451,11 +449,6 @@ public class LancamentoController {
                 );
 
 
-        /*
-         * Se for edição, primeiro confirmamos
-         * que o lançamento pertence ao usuário.
-         */
-
         Lancamento existente = null;
 
 
@@ -491,7 +484,7 @@ public class LancamentoController {
 
 
         // =========================================
-        // VALIDAÇÃO NO SERVIDOR
+        // VALIDAÇÃO
         // =========================================
 
         String erroValidacao =
@@ -546,21 +539,11 @@ public class LancamentoController {
 
         if (existente == null) {
 
-            /*
-             * Novo lançamento:
-             * sempre pertence ao usuário autenticado.
-             */
-
             lancamento.setResponsavel(
                     nomeUsuario
             );
 
         } else {
-
-            /*
-             * Edição:
-             * preservamos o responsável original.
-             */
 
             lancamento.setResponsavel(
                     existente.getResponsavel()
@@ -639,7 +622,7 @@ public class LancamentoController {
 
         /*
          * Cartão de crédito:
-         * a forma de pagamento é sempre cartão.
+         * automaticamente é pago com cartão.
          */
 
         if (tipo
@@ -655,7 +638,11 @@ public class LancamentoController {
 
         /*
          * Outro gasto:
-         * preservamos a escolha feita pelo usuário.
+         * preservamos a escolha:
+         *
+         * - Receitas do mês
+         * - Saldo na conta
+         * - Cartão de crédito
          */
 
         if (tipo
@@ -666,8 +653,8 @@ public class LancamentoController {
 
 
         /*
-         * Salário, renda extra e valor guardado
-         * não precisam de forma de pagamento.
+         * Salário, renda extra e guardado
+         * não usam forma de pagamento.
          */
 
         lancamento.setFormaPagamento(
@@ -685,15 +672,11 @@ public class LancamentoController {
             String periodoLancamento) {
 
 
-        // Valor obrigatório
-
         if (lancamento.getValor() == null) {
 
             return "Informe o valor do lançamento.";
         }
 
-
-        // Não permite zero nem valor negativo
 
         if (lancamento
                 .getValor()
@@ -705,8 +688,6 @@ public class LancamentoController {
         }
 
 
-        // Evita valor maior que o suportado pelo banco
-
         if (lancamento
                 .getValor()
                 .compareTo(
@@ -716,8 +697,6 @@ public class LancamentoController {
             return "O valor informado é muito alto.";
         }
 
-
-        // Apenas duas casas decimais
 
         BigDecimal valorNormalizado =
                 lancamento
@@ -731,15 +710,11 @@ public class LancamentoController {
         }
 
 
-        // Tipo obrigatório
-
         if (lancamento.getTipo() == null) {
 
             return "Selecione o tipo do lançamento.";
         }
 
-
-        // Apenas tipos ativos
 
         if (!TIPOS_ATIVOS.contains(
                 lancamento.getTipo()
@@ -750,7 +725,7 @@ public class LancamentoController {
 
 
         // =========================================
-        // FORMA DE PAGAMENTO
+        // ORIGEM DO DINHEIRO
         // =========================================
 
         if (lancamento.getTipo()
@@ -760,7 +735,7 @@ public class LancamentoController {
             if (lancamento
                     .getFormaPagamento() == null) {
 
-                return "Selecione como este gasto foi pago.";
+                return "Selecione de onde saiu o dinheiro deste gasto.";
             }
 
 
@@ -768,7 +743,7 @@ public class LancamentoController {
                     lancamento.getFormaPagamento()
             )) {
 
-                return "Forma de pagamento inválida.";
+                return "Origem do dinheiro inválida.";
             }
         }
 
